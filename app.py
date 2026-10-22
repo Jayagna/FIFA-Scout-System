@@ -55,6 +55,16 @@ def similarity_index(_cur: pd.DataFrame, edition: int) -> SimilarityIndex:
 
 
 st.set_page_config(page_title="Career Mode Scout", layout="wide")
+_needed = [ROOT / "data/processed/panel.pkl", ROOT / "data/processed/forecasts_latest.csv"]
+_missing = [p.relative_to(ROOT).as_posix() for p in _needed if not p.exists()]
+if _missing:
+    st.title("Career Mode Scout")
+    st.error("The player data and models haven't been built yet "
+             f"(missing: {', '.join(_missing)}).\n\n"
+             "Stop the app, run this once from the project folder (about 2 minutes), "
+             "then start the app again:\n\n"
+             "`python scripts/run_all.py --quick`")
+    st.stop()
 cur, history, latest = load()
 leagues = sorted(cur["league"].dropna().unique().tolist())
 

@@ -1,9 +1,10 @@
 """Download the raw FIFA 15-22 player files into data/raw/.
 
-Option A (default, no account needed): fetch the exact files this project was
-built on from public GitHub mirrors of the Kaggle dataset, pinned to commits.
+Default: plain HTTPS downloads of the exact files this project was built on, from
+public GitHub mirrors of the Kaggle dataset, pinned to commits and checked by MD5.
+No git or Kaggle account needed.
 
-Option B: download "FIFA 22 complete player dataset" by stefanoleone992 from
+Alternative: download "FIFA 22 complete player dataset" by stefanoleone992 from
 Kaggle and copy players_15.csv ... players_22.csv into data/raw/. The loader
 handles that layout too (it prefers players_21.csv over the sofifa export).
 
@@ -12,15 +13,17 @@ Usage:  python scripts/download_data.py
 from __future__ import annotations
 
 import hashlib
-import shutil
-import subprocess
+import os
 import sys
-import tempfile
+import time
+import urllib.request
 from pathlib import Path
 
 RAW = Path(__file__).resolve().parents[1] / "data" / "raw"
+# overridable for testing or for a local mirror
+BASE = os.environ.get("FCSCOUT_RAW_BASE", "https://raw.githubusercontent.com")
 
-# (repo, commit, path in repo, local name, md5)
+# (repo, commit, [(path in repo, local name)])
 SOURCES = [
     ("tmclouisluk/FIFA-players-Data-Analysis", "959c7fcf0a6587acdb094de4c6b9561c4e013e68",
      [(f"data/players_{y}.csv", f"players_{y}.csv") for y in range(15, 21)]),
@@ -50,37 +53,52 @@ def md5(path: Path) -> str:
     return h.hexdigest()
 
 
-def run(cmd: list[str], cwd: Path | None = None) -> None:
-    subprocess.run(cmd, cwd=cwd, check=True, stdout=subprocess.DEVNULL)
+def fetch(url: str, dest: Path, tries: int = 3) -> None:
+    """Download url to dest atomically (via a .part file), retrying on network errors."""
+    part = dest.with_suffix(dest.suffix + ".part")
+    for attempt in range(1, tries + 1):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "fc-career-scout"})
+            with urllib.request.urlopen(req, timeout=60) as r, open(part, "wb") as f:
+                while chunk := r.read(1 << 20):
+                    f.write(chunk)
+            part.replace(dest)
+            return
+        except Exception as e:  # noqa: BLE001 - report and retry any network error
+            part.unlink(missing_ok=True)
+            if attempt == tries:
+                raise RuntimeError(f"could not download {url}: {e}") from e
+            print(f"    retrying ({e})")
+            time.sleep(2 * attempt)
 
 
 def main() -> int:
     RAW.mkdir(parents=True, exist_ok=True)
-    todo = [(r, c, files) for r, c, files in SOURCES
-            if any(not (RAW / local).exists() for _, local in files)]
-    if not todo:
-        print("All raw files already present.")
-    for repo, commit, files in todo:
-        print(f"Fetching {repo} @ {commit[:7]} ...")
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp = Path(tmp)
-            run(["git", "-c", "gc.auto=0", "clone", "-q", "--filter=blob:none", "--no-checkout",
-                 f"https://github.com/{repo}", str(tmp / "repo")])
-            run(["git", "-c", "gc.auto=0", "checkout", "-q", commit, "--", *[p for p, _ in files]],
-                cwd=tmp / "repo")
-            for path, local in files:
-                shutil.copy(tmp / "repo" / path, RAW / local)
-    bad = 0
-    for name, expected in MD5.items():
-        p = RAW / name
-        if not p.exists():
-            print(f"  missing  {name}")
-            bad += 1
-        elif md5(p) != expected:
-            print(f"  CHANGED  {name} (checksum differs from the build used for the README numbers)")
-        else:
-            print(f"  ok       {name}")
-    return 1 if bad else 0
+    failed = []
+    for repo, commit, files in SOURCES:
+        for path, local in files:
+            dest = RAW / local
+            if dest.exists() and md5(dest) == MD5[local]:
+                print(f"  ok       {local}")
+                continue
+            url = f"{BASE}/{repo}/{commit}/{path}"
+            print(f"  fetching {local} ...", flush=True)
+            try:
+                fetch(url, dest)
+            except RuntimeError as e:
+                print(f"  FAILED   {e}")
+                failed.append(local)
+                continue
+            if md5(dest) != MD5[local]:
+                print(f"  CHANGED  {local}: checksum differs from the build used for the README numbers")
+            else:
+                print(f"  ok       {local}")
+    if failed:
+        print(f"\n{len(failed)} file(s) could not be downloaded: {', '.join(failed)}\n"
+              "Check your internet connection and run this script again, or put the Kaggle "
+              "files in data/raw/ by hand (see the docstring at the top of this script).")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
