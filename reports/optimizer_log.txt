@@ -1,0 +1,243 @@
+  A Arsenal done
+  A Aston Villa done
+  A Brentford done
+  A Brighton & Hove Albion done
+  A Burnley done
+  A Chelsea done
+  A Crystal Palace done
+  A Everton done
+  A Leeds United done
+  A Leicester City done
+  A Liverpool done
+  A Manchester City done
+  A Manchester United done
+  A Newcastle United done
+  A Norwich City done
+  A Southampton done
+  A Tottenham Hotspur done
+  A Watford done
+  A West Ham United done
+  A Wolverhampton Wanderers done
+{
+  "A_milp_vs_greedy": {
+    "scenarios": 120,
+    "all_optimal": true,
+    "milp_never_worse": true,
+    "milp_strictly_better_share": 0.6,
+    "mean_xi_points_added_milp": 19.383333333333333,
+    "mean_xi_points_added_greedy_best": 17.058333333333344,
+    "extra_points_vs_greedy_mean": 2.324999999999993,
+    "extra_gain_vs_greedy_pct": 0.13629702002931054,
+    "solve_seconds_median": 0.6000633239746094,
+    "solve_seconds_max": 2.651515245437622,
+    "candidates_median": 1253.0
+  }
+}
+  B edition 18: 40 clubs done
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+  B edition 19: 40 clubs done
+h1_max_age_None {
+  "horizon": 1,
+  "max_age": null,
+  "editions": [
+    18,
+    19
+  ],
+  "now": {
+    "next_season_xi_avg": 73.7188995215311,
+    "xi_points_added_next_season": 27.710526315789473,
+    "signings_age_avg": 33.079166666666666,
+    "signings_rating_now_avg": 81.575,
+    "signings_rating_next_avg": 80.9375,
+    "signings_change_avg": -0.6374999999999993,
+    "signings_gone_from_game": 31,
+    "spend_avg_m": 26.2575
+  },
+  "potential": {
+    "next_season_xi_avg": 73.77990430622009,
+    "xi_points_added_next_season": 28.381578947368414,
+    "signings_age_avg": 32.145833333333336,
+    "signings_rating_now_avg": 81.33333333333333,
+    "signings_rating_next_avg": 80.98958333333333,
+    "signings_change_avg": -0.34374999999999983,
+    "signings_gone_from_game": 29,
+    "spend_avg_m": 27.535
+  },
+  "forecast": {
+    "next_season_xi_avg": 73.74401913875597,
+    "xi_points_added_next_season": 27.986842105263165,
+    "signings_age_avg": 32.645833333333336,
+    "signings_rating_now_avg": 81.49791666666667,
+    "signings_rating_next_avg": 80.97708333333333,
+    "signings_change_avg": -0.5208333333333321,
+    "signings_gone_from_game": 34,
+    "spend_avg_m": 27.71875
+  },
+  "clubs": 76,
+  "forecast_beats_now_share": 0.2236842105263158,
+  "forecast_ties_now_share": 0.5789473684210527,
+  "forecast_minus_now_xi_points": 0.27631578947368796,
+  "forecast_minus_potential_xi_points": -0.39473684210525173,
+  "forecast_minus_now_ci95": [
+    -0.5526315789473656,
+    1.1973684210526307
+  ]
+}
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+  B edition 18: 40 clubs done
+  B edition 19: 40 clubs done
+h1_max_age_29 {
+  "horizon": 1,
+  "max_age": 29,
+  "editions": [
+    18,
+    19
+  ],
+  "now": {
+    "next_season_xi_avg": 73.01196172248804,
+    "xi_points_added_next_season": 19.93421052631579,
+    "signings_age_avg": 27.90416666666667,
+    "signings_rating_now_avg": 78.18125,
+    "signings_rating_next_avg": 78.025,
+    "signings_change_avg": -0.15624999999999858,
+    "signings_gone_from_game": 43,
+    "spend_avg_m": 28.46125
+  },
+  "potential": {
+    "next_season_xi_avg": 73.07177033492823,
+    "xi_points_added_next_season": 20.59210526315789,
+    "signings_age_avg": 27.139583333333338,
+    "signings_rating_now_avg": 77.9625,
+    "signings_rating_next_avg": 78.13958333333332,
+    "signings_change_avg": 0.17708333333333445,
+    "signings_gone_from_game": 42,
+    "spend_avg_m": 29.245
+  },
+  "forecast": {
+    "next_season_xi_avg": 73.00478468899522,
+    "xi_points_added_next_season": 19.85526315789474,
+    "signings_age_avg": 27.695833333333336,
+    "signings_rating_now_avg": 78.20416666666668,
+    "signings_rating_next_avg": 78.08333333333333,
+    "signings_change_avg": -0.12083333333333321,
+    "signings_gone_from_game": 48,
+    "spend_avg_m": 29.34375
+  },
+  "clubs": 76,
+  "forecast_beats_now_share": 0.23684210526315788,
+  "forecast_ties_now_share": 0.4605263157894737,
+  "forecast_minus_now_xi_points": -0.07894736842105282,
+  "forecast_minus_potential_xi_points": -0.7368421052631542,
+  "forecast_minus_now_ci95": [
+    -0.72368421052632,
+    0.5921052631578972
+  ]
+}
+  B edition 18: 40 clubs done
+  B edition 20: 40 clubs done
+h2_max_age_None {
+  "horizon": 2,
+  "max_age": null,
+  "editions": [
+    18,
+    20
+  ],
+  "now": {
+    "next_season_xi_avg": 72.82186732186733,
+    "xi_points_added_next_season": 17.164383561643834,
+    "signings_age_avg": 33.329166666666666,
+    "signings_rating_now_avg": 81.57083333333333,
+    "signings_rating_next_avg": 80.9188034188034,
+    "signings_change_avg": -0.692307692307692,
+    "signings_gone_from_game": 109,
+    "spend_avg_m": 26.09
+  },
+  "potential": {
+    "next_season_xi_avg": 73.0909090909091,
+    "xi_points_added_next_season": 20.178082191780828,
+    "signings_age_avg": 29.725,
+    "signings_rating_now_avg": 80.4,
+    "signings_rating_next_avg": 80.5,
+    "signings_change_avg": 0.10000000000000178,
+    "signings_gone_from_game": 88,
+    "spend_avg_m": 28.15125
+  },
+  "forecast": {
+    "next_season_xi_avg": 72.96683046683047,
+    "xi_points_added_next_season": 18.794520547945204,
+    "signings_age_avg": 31.770833333333336,
+    "signings_rating_now_avg": 80.93333333333332,
+    "signings_rating_next_avg": 80.30341880341881,
+    "signings_change_avg": -0.602564102564101,
+    "signings_gone_from_game": 97,
+    "spend_avg_m": 28.21625
+  },
+  "clubs": 74,
+  "forecast_beats_now_share": 0.5,
+  "forecast_ties_now_share": 0.17567567567567569,
+  "forecast_minus_now_xi_points": 1.5945945945945998,
+  "forecast_minus_potential_xi_points": -1.3648648648648698,
+  "forecast_minus_now_ci95": [
+    -0.054054054054057804,
+    3.2432432432432385
+  ]
+}
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+  B edition 18: 40 clubs done
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+  B edition 20: 40 clubs done
+h2_max_age_29 {
+  "horizon": 2,
+  "max_age": 29,
+  "editions": [
+    18,
+    20
+  ],
+  "now": {
+    "next_season_xi_avg": 72.82800982800984,
+    "xi_points_added_next_season": 16.890410958904123,
+    "signings_age_avg": 28.17291666666667,
+    "signings_rating_now_avg": 77.89375,
+    "signings_rating_next_avg": 76.89529914529915,
+    "signings_change_avg": -0.9957264957264956,
+    "signings_gone_from_game": 44,
+    "spend_avg_m": 28.38875
+  },
+  "potential": {
+    "next_season_xi_avg": 73.26044226044225,
+    "xi_points_added_next_season": 21.958904109589042,
+    "signings_age_avg": 22.21875,
+    "signings_rating_now_avg": 76.09375,
+    "signings_rating_next_avg": 78.24166666666667,
+    "signings_change_avg": 2.1479166666666663,
+    "signings_gone_from_game": 35,
+    "spend_avg_m": 29.51
+  },
+  "forecast": {
+    "next_season_xi_avg": 73.05651105651106,
+    "xi_points_added_next_season": 19.520547945205482,
+    "signings_age_avg": 24.802083333333332,
+    "signings_rating_now_avg": 76.59166666666667,
+    "signings_rating_next_avg": 78.0,
+    "signings_change_avg": 1.421940928270042,
+    "signings_gone_from_game": 54,
+    "spend_avg_m": 29.2175
+  },
+  "clubs": 74,
+  "forecast_beats_now_share": 0.5540540540540541,
+  "forecast_ties_now_share": 0.12162162162162163,
+  "forecast_minus_now_xi_points": 2.513513513513505,
+  "forecast_minus_potential_xi_points": -2.2432432432432394,
+  "forecast_minus_now_ci95": [
+    -0.054391891891905686,
+    5.459797297297275
+  ]
+}
+done in 3898s
+EXIT 0

@@ -1,0 +1,8 @@
+numpy>=1.26
+pandas>=2.1
+scipy>=1.11        # scipy.optimize.milp (HiGHS) for the squad optimizer
+scikit-learn>=1.4  # HistGradientBoosting for the growth forecaster
+joblib>=1.3
+streamlit>=1.32
+faiss-cpu>=1.7     # optional: replacement search falls back to NumPy without it
+pytest>=7

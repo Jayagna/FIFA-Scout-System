@@ -1,0 +1,26 @@
+{
+  "faiss_used": false,
+  "identity_recall_21_to_22": {
+    "outfield": {
+      "n": 12045,
+      "recall@1": 0.8206724782067247,
+      "recall@10": 0.8799501867995019
+    },
+    "gk": {
+      "n": 1452,
+      "recall@1": 0.7761707988980716,
+      "recall@10": 0.8684573002754821
+    }
+  },
+  "position_agreement@10": {
+    "model": 0.52575,
+    "chance": 0.11288329813325566
+  },
+  "cheaper_lookalikes_pl_80plus": {
+    "players": 128,
+    "found_share": 0.890625,
+    "avg_similarity": 0.921943419858029,
+    "avg_rating_drop": 1.6578947368421053,
+    "avg_saving_pct": 0.630540359360011
+  }
+}

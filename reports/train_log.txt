@@ -1,0 +1,17 @@
+== horizon 1
+    h=1 {'max_leaf_nodes': 15, 'min_samples_leaf': 20} val MAE 1.654
+    h=1 {'max_leaf_nodes': 15, 'min_samples_leaf': 80} val MAE 1.652
+    h=1 {'max_leaf_nodes': 31, 'min_samples_leaf': 20} val MAE 1.640
+    h=1 {'max_leaf_nodes': 31, 'min_samples_leaf': 80} val MAE 1.640
+    h=1 {'max_leaf_nodes': 63, 'min_samples_leaf': 20} val MAE 1.644
+    h=1 {'max_leaf_nodes': 63, 'min_samples_leaf': 80} val MAE 1.642
+  test (t=21 -> t=22): {'persistence': 1.758, 'age_curve': 1.695, 'ea_potential': 1.688, 'model': 1.614}
+== horizon 2
+    h=2 {'max_leaf_nodes': 15, 'min_samples_leaf': 20} val MAE 2.424
+    h=2 {'max_leaf_nodes': 15, 'min_samples_leaf': 80} val MAE 2.424
+    h=2 {'max_leaf_nodes': 31, 'min_samples_leaf': 20} val MAE 2.433
+    h=2 {'max_leaf_nodes': 31, 'min_samples_leaf': 80} val MAE 2.423
+    h=2 {'max_leaf_nodes': 63, 'min_samples_leaf': 20} val MAE 2.430
+    h=2 {'max_leaf_nodes': 63, 'min_samples_leaf': 80} val MAE 2.424
+  test (t=20 -> t=22): {'persistence': 2.646, 'age_curve': 2.555, 'ea_potential': 2.592, 'model': 2.2}
+done in 51s
