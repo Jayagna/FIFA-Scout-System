@@ -1,6 +1,6 @@
 """Two experiments for the squad builder. Writes reports/optimizer_metrics.json.
 
-A) Exact MILP vs a hand-made greedy strategy (FIFA 22 data)
+A) Exact MILP vs a hand-made greedy strategy (newest edition, FC 26)
    every Premier League club x budget {20, 50, 100}M x formation {4-3-3, 4-2-3-1},
    max 3 signings, no sales. Same constraints for both.
 
@@ -28,15 +28,16 @@ from scipy.optimize import linear_sum_assignment
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from fcscout.data import PREMIER_LEAGUE  # noqa: E402
 from fcscout.forecast import GrowthModel, PotentialLinear, rows_for, target_col  # noqa: E402
 from fcscout.optimize import (TransferSettings, greedy_plan, optimize_squad,  # noqa: E402
                               slot_ratings)
 
 
 def experiment_a(panel: pd.DataFrame) -> dict:
-    d = panel[panel["edition"] == 22].copy()
+    d = panel[panel["edition"] == panel["edition"].max()].copy()
     d["pos_group"] = d["pos_group"].astype(str)
-    clubs = sorted(d.loc[d["league"] == "English Premier League", "club"].dropna().unique())
+    clubs = sorted(d.loc[d["league"] == PREMIER_LEAGUE, "club"].dropna().unique())
     rows = []
     for club in clubs:
         squad, market = d[d["club"] == club], d[d["club"] != club]
@@ -85,7 +86,8 @@ def best_xi_next(final_ids: list[int], nxt: pd.DataFrame, formation: str) -> tup
 
 def experiment_b(panel: pd.DataFrame, h: int = 1, max_age: int | None = None,
                  n_clubs=40, budget=30e6) -> dict:
-    # editions whose position ratings exist both at t and at t+h (FIFA 21 file has none)
+    # the same transfer windows as the first version of this project, so the
+    # numbers stay comparable (all inside FIFA 15-22)
     editions = (18, 19) if h == 1 else (18, 20)
     out = {"horizon": h, "max_age": max_age, "editions": list(editions)}
     rows = []
@@ -161,7 +163,7 @@ def main():
     if "--skip-a" in sys.argv and prev.exists():
         res = json.loads(prev.read_text())
     else:
-        res = {"A_milp_vs_greedy": experiment_a(panel)}
+        res = {"A_milp_vs_greedy": dict(experiment_a(panel), edition=int(panel["edition"].max()))}
         prev.write_text(json.dumps(res, indent=2))
     print(json.dumps(res, indent=2))
     # every variant that was run is reported, not just the best one

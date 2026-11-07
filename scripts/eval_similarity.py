@@ -1,7 +1,7 @@
 """Checks for the replacement finder. Writes reports/similarity_metrics.json.
 
-1. Identity recall: embed each player's FIFA 21 attributes and search the FIFA 22
-   pool. If the vectors capture "what kind of player this is", the nearest FIFA 22
+1. Identity recall: embed each player's attributes from the previous edition and
+   search the newest edition's pool (FC 25 -> FC 26). If the vectors capture "what kind of player this is", the nearest FIFA 22
    player should usually be the same person a year later.
 2. Position agreement: share of a player's 10 nearest neighbours that play his
    primary position (versus the share expected by chance).
@@ -20,15 +20,17 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from fcscout.data import PREMIER_LEAGUE  # noqa: E402
 from fcscout.similar import SimilarityIndex  # noqa: E402
 
 
 def main():
     panel = pd.read_pickle(ROOT / "data/processed/panel.pkl")
-    cur = panel[panel["edition"] == 22].reset_index(drop=True)
-    prev = panel[panel["edition"] == 21].reset_index(drop=True)
+    latest = int(panel["edition"].max())
+    cur = panel[panel["edition"] == latest].reset_index(drop=True)
+    prev = panel[panel["edition"] == latest - 1].reset_index(drop=True)
     idx = SimilarityIndex(cur)
-    out = {"faiss_used": idx.use_faiss}
+    out = {"faiss_used": idx.use_faiss, "edition": latest, "previous_edition": latest - 1}
 
     # 1. identity recall across editions
     rec = {}
@@ -40,7 +42,7 @@ def main():
         found = cur["id"].to_numpy()[rows] == q["id"].to_numpy()[:, None]
         rec[block] = {"n": int(len(q)), "recall@1": float(found[:, 0].mean()),
                       "recall@10": float(found.any(axis=1).mean())}
-    out["identity_recall_21_to_22"] = rec
+    out["identity_recall"] = rec
 
     # 2. position agreement
     rng = np.random.default_rng(0)
@@ -57,7 +59,7 @@ def main():
     out["position_agreement@10"] = {"model": float(agree), "chance": chance}
 
     # 3. cheaper look-alikes for Premier League 80+ players
-    stars = cur[(cur["league"] == "English Premier League") & (cur["overall"] >= 80)]
+    stars = cur[(cur["league"] == PREMIER_LEAGUE) & (cur["overall"] >= 80)]
     res = []
     for r in stars.itertuples():
         m = idx.find(r.id, max_fee=0.5 * r.value_eur, min_overall=r.overall - 3, k=1,

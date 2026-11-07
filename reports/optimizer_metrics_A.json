@@ -3,13 +3,14 @@
     "scenarios": 120,
     "all_optimal": true,
     "milp_never_worse": true,
-    "milp_strictly_better_share": 0.6,
-    "mean_xi_points_added_milp": 19.383333333333333,
-    "mean_xi_points_added_greedy_best": 17.058333333333344,
-    "extra_points_vs_greedy_mean": 2.324999999999993,
-    "extra_gain_vs_greedy_pct": 0.13629702002931054,
-    "solve_seconds_median": 0.6000633239746094,
-    "solve_seconds_max": 2.651515245437622,
-    "candidates_median": 1253.0
+    "milp_strictly_better_share": 0.6833333333333333,
+    "mean_xi_points_added_milp": 18.6,
+    "mean_xi_points_added_greedy_best": 15.016666666666675,
+    "extra_points_vs_greedy_mean": 3.583333333333328,
+    "extra_gain_vs_greedy_pct": 0.23862375138734676,
+    "solve_seconds_median": 0.4069385528564453,
+    "solve_seconds_max": 2.1711745262145996,
+    "candidates_median": 996.5,
+    "edition": 26
   }
 }

@@ -1,11 +1,18 @@
 """Backtest the growth forecaster on held-out editions, then train the final models.
 
-Splits (strictly by time: training targets never come from the test edition or later)
-  h=1  tune: train t=15..19 -> val t=20 (FIFA 21)   test: train t=15..20 -> t=21 (FIFA 22)
-  h=2  tune: train t=15..16 -> val t=18 (FIFA 20)   test: train t=15..18 -> t=20 (FIFA 22)
+Splits, strictly by time (training targets never come from the test edition or later).
+With L = the newest edition (FC 26 = 26):
+  h=1  tune: train t<=L-3 -> val t=L-2   test: train t<=L-2 -> t=L-1  (FC 25 -> FC 26)
+  h=2  tune: train t<=L-6 -> val t=L-4   test: train t<=L-4 -> t=L-2  (FC 24 -> FC 26)
 
-Writes reports/forecast_metrics.json, models/growth_h{1,2}.joblib and
-data/processed/forecasts_latest.csv (latest edition scored 1 and 2 editions ahead).
+Also a rolling-origin check: for every edition t from FIFA 18 on, a model trained only
+on targets known before t is scored on t -> t+h (same hyperparameters as the main test).
+That shows how much one test window moves the result; see the README for why
+FC 25 -> FC 26 is the odd one out (the FC 25 file is a late-season roster).
+
+Writes reports/forecast_metrics.json, reports/forecast_rolling.json,
+models/growth_h{1,2}.joblib and data/processed/forecasts_latest.csv (latest edition
+scored 1 and 2 editions ahead).
 """
 from __future__ import annotations
 
@@ -26,8 +33,17 @@ from fcscout.forecast import (GrowthModel, evaluate, fit_baselines, mae,  # noqa
                               predict_all, rows_for, target_col)
 
 GRID = [dict(max_leaf_nodes=l, min_samples_leaf=m) for l, m in itertools.product([15, 31, 63], [20, 80])]
-SPLITS = {1: dict(tune=(range(15, 20), 20), test=(range(15, 21), 21)),
-          2: dict(tune=(range(15, 17), 18), test=(range(15, 19), 20))}
+
+
+def make_splits(last: int, first: int = 15) -> dict:
+    """Test on the newest targets; tune on the edition before the test window."""
+    out = {}
+    for h in (1, 2):
+        test_t = last - h
+        val_t = test_t - h
+        out[h] = dict(tune=(range(first, val_t - h + 1), val_t),
+                      test=(range(first, test_t - h + 1), test_t))
+    return out
 
 
 def tune(panel, h, train_eds, val_ed):
@@ -42,12 +58,34 @@ def tune(panel, h, train_eds, val_ed):
     return best[1], best[0]
 
 
+def rolling(panel, h, params, first_test=18):
+    """Score every test window t -> t+h with a model trained on targets known before t."""
+    out = []
+    last = int(panel["edition"].max())
+    for t in range(first_test, last - h + 1):
+        train_eds = range(int(panel["edition"].min()), t - h + 1)
+        tr, te = rows_for(panel, train_eds, h), rows_for(panel, [t], h)
+        if len(tr) == 0 or len(te) == 0:
+            continue
+        model = GrowthModel(h, params).fit(tr, intervals=False)
+        preds = predict_all(fit_baselines(tr, h), te)
+        preds["model"] = te["overall"].to_numpy() + model.predict_delta(te)
+        y = te[target_col(h)].to_numpy()
+        young = (te["age"] <= 21).to_numpy()
+        out.append({"test_edition": t, "target_edition": t + h, "n": int(len(te)),
+                    **{k: mae(y, v) for k, v in preds.items()},
+                    "u21": {k: mae(y[young], v[young]) for k, v in preds.items()}})
+        print(f"    rolling h={h} {t}->{t + h}:", {k: round(mae(y, v), 3) for k, v in preds.items()})
+    return out
+
+
 def main():
     t0 = time.time()
     panel = pd.read_pickle(ROOT / "data/processed/panel.pkl")
     metrics = {}
     final = {}
-    for h, sp in SPLITS.items():
+    splits = make_splits(int(panel["edition"].max()), int(panel["edition"].min()))
+    for h, sp in splits.items():
         print(f"== horizon {h}")
         params, val_mae = tune(panel, h, *sp["tune"])
         train_eds, test_ed = sp["test"]
@@ -75,9 +113,11 @@ def main():
         (ROOT / "models").mkdir(exist_ok=True)
         joblib.dump(final[h], ROOT / f"models/growth_h{h}.joblib")
 
-    # importance proxy: how much the val MAE degrades without the history/club features
     (ROOT / "reports").mkdir(exist_ok=True)
     (ROOT / "reports/forecast_metrics.json").write_text(json.dumps(metrics, indent=2))
+    if "--no-rolling" not in sys.argv:
+        roll = {f"h{h}": rolling(panel, h, metrics[f"h{h}"]["best_params"]) for h in (1, 2)}
+        (ROOT / "reports/forecast_rolling.json").write_text(json.dumps(roll, indent=2))
 
     latest = panel[panel["edition"] == panel["edition"].max()].copy()
     out = latest[["id", "edition", "name", "long_name", "age", "club", "league", "primary_pos",

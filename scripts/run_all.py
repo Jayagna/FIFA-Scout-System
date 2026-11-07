@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 STEPS = ["download_data.py", "build_dataset.py", "train_forecaster.py", "eval_similarity.py",
          "backtest_optimizer.py"]
+# (scripts/fit_rating_formulas.py is run by hand: its output is committed in src/fcscout/)
 
 if __name__ == "__main__":
     steps = STEPS[:-1] if "--quick" in sys.argv else STEPS

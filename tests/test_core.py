@@ -1,4 +1,5 @@
-"""Unit tests: parsing, optimizer exactness (vs brute force), similarity search, leakage.
+"""Unit tests: parsing every source layout, gap filling, optimizer exactness (vs brute
+force), similarity search, leakage-free splits.
 
 Run:  python -m pytest -q      (or: python tests/test_core.py)
 """
@@ -76,6 +77,161 @@ def test_fc24_combined_layout_keeps_first_update(tmp_path):
     x23 = out[(out["id"] == 7) & (out["edition"] == 23)].iloc[0]
     assert x23["overall"] == 70                     # update 1 is kept
     assert x23["contract_end"] == 2026 and x23["defending_marking"] == 30
+
+
+def test_sofifa_v2_layout(tmp_path):
+    from fcscout.data import load_sofifa_v2
+    df = pd.DataFrame({
+        "ID": [158023, 9], "Name": ["L. Messi", "K"], "FullName": ["Lionel Messi", "Keeper"],
+        "Age": [35, 30], "Overall": [91, 70], "Potential": [91, 72], "Positions": ["RW", "GK"],
+        "Club": ["PSG", "X"], "ValueEUR": [54000000, 0], "WageEUR": [195000, 1000],
+        "OnLoad": [False, True], "PaceTotal": [81, 50], "STRating": [89, 20],
+        "PhotoUrl": ["https://cdn.sofifa.net/players/158/023/23_60.png", None],
+        "AttackingWorkRate": ["Low", "Medium"], "DefensiveWorkRate": ["Low", "High"],
+    })
+    out = load_sofifa_v2(_csv(tmp_path, "v2.csv", df), 23)
+    assert out.loc[0, "face_url"].endswith("23_120.png")
+    assert out.loc[0, "on_loan"] == 0 and out.loc[1, "on_loan"] == 1
+    assert np.isnan(out.loc[0, "pos_st"])                       # boosted ratings dropped by default
+    assert load_sofifa_v2(_csv(tmp_path, "v2b.csv", df), 23, position_ratings=True).loc[0, "pos_rs"] == 89
+    assert np.isnan(out.loc[1, "value_eur"]) and out.loc[0, "work_rate_def"] == 1
+
+
+def test_sofifa_scrape_layout_mixed_encoding(tmp_path):
+    from fcscout.data import load_sofifa_scrape
+    head = ("player_id,name,dob,positions,overall_rating,potential,value,wage,release_clause,"
+            "club_name,club_league_id,club_league_name,club_contract_valid_until,work_rate,crossing\n")
+    rows = ("239085,Erling Haaland,7/21/2000,ST,91,94,185M,340K,356.1M,Manchester City,13,"
+            "Premier League,2027,High/High,47\n").encode("utf-8")
+    rows += "1,J\xe9r\xf4me,1/2/1999,CB,60,65,\u20ac1.2M,\u20ac3K,,C,53,La Liga,2025,Low/High,30\n".encode("cp1252")
+    p = Path(tmp_path) / "players_24_scrape.csv"
+    p.write_bytes(head.encode() + rows)
+    out = load_sofifa_scrape(p, 24)
+    h = out[out["id"] == 239085].iloc[0]
+    assert h["age"] == 22                                       # 21 July 2000 -> 22 on 1 July 2023
+    assert h["value_eur"] == 185e6 and h["wage_eur"] == 340e3 and h["release_clause_eur"] == 356.1e6
+    assert h["league_id"] == 13 and h["attacking_crossing"] == 47 and h["work_rate_att"] == 3
+    j = out[out["id"] == 1].iloc[0]
+    assert j["name"] == "J\u00e9r\u00f4me" and j["value_eur"] == 1.2e6
+
+
+def _ea_db(folder: Path):
+    folder.mkdir(parents=True, exist_ok=True)
+    base = {c: 50 for c in ["crossing", "finishing", "headingaccuracy", "shortpassing", "volleys",
+                            "dribbling", "curve", "freekickaccuracy", "longpassing", "ballcontrol",
+                            "acceleration", "sprintspeed", "agility", "reactions", "balance",
+                            "shotpower", "jumping", "stamina", "strength", "longshots", "aggression",
+                            "interceptions", "positioning", "vision", "penalties", "composure",
+                            "defensiveawareness", "standingtackle", "slidingtackle", "gkdiving",
+                            "gkhandling", "gkkicking", "gkpositioning", "gkreflexes"]}
+    players = pd.DataFrame([
+        dict(base, playerid=231747, overallrating=90, potential=93, birthdate=152008, gender=0,
+             preferredposition1=25, preferredposition2=27, preferredposition3=-1, preferredposition4=-1,
+             skillmoves=4, preferredfoot=1, weakfootabilitytypecode=4, internationalrep=5,
+             contractvaliduntil=2029, height=178, weight=75, nationality=18),
+        dict(base, playerid=5, overallrating=70, potential=70, birthdate=150000, gender=1,        # women's league
+             preferredposition1=14, preferredposition2=-1, preferredposition3=-1, preferredposition4=-1,
+             skillmoves=1, preferredfoot=2, weakfootabilitytypecode=3, internationalrep=1,
+             contractvaliduntil=2026, height=170, weight=60, nationality=18),
+        dict(base, playerid=237067, overallrating=95, potential=95, birthdate=140000, gender=0,   # legend squad
+             preferredposition1=25, preferredposition2=-1, preferredposition3=-1, preferredposition4=-1,
+             skillmoves=4, preferredfoot=1, weakfootabilitytypecode=4, internationalrep=5,
+             contractvaliduntil=2026, height=173, weight=70, nationality=54),
+    ])
+    players.to_csv(folder / "players.csv", index=False)
+    pd.DataFrame({"teamid": [243, 900, 1], "teamname": ["Real Madrid", "Classic XI", "Women FC"]}).to_csv(folder / "teams.csv", index=False)
+    pd.DataFrame({"leagueid": [53, 76, 2222], "leaguename": ["LALIGA EA SPORTS", "Men's ROW", "Liga F"],
+                  "iswomencompetition": [0, 0, 1], "isinternationalleague": [0, 0, 0]}).to_csv(folder / "leagues.csv", index=False)
+    pd.DataFrame({"teamid": [243, 900, 1], "leagueid": [53, 76, 2222]}).to_csv(folder / "leagueteamlinks.csv", index=False)
+    pd.DataFrame({"playerid": [231747, 237067, 5, 0, 0], "teamid": [243, 900, 1, 243, 900]}).to_csv(folder / "teamplayerlinks.csv", index=False)
+    pd.DataFrame({"countryid": [18, 54], "countryname": ["France", "Brazil"]}).to_csv(folder / "countries.csv", index=False)
+    pd.DataFrame({"playerid": [231747], "full_name": ["Kylian Mbapp\u00e9 -"], "value": ["\u20ac160M"],
+                  "wage": ["\u20ac380K"], "release_clause": ["\u20ac300M"]}).to_csv(folder / "sofifa.csv", index=False)
+    return folder
+
+
+def test_ea_database_layout(tmp_path):
+    from fcscout.data import load_ea_database
+    out = load_ea_database(_ea_db(Path(tmp_path) / "ea_db_25"), 25)
+    assert out["id"].tolist() == [231747]                     # women's league and legends removed
+    r = out.iloc[0]
+    assert r["dob"] == "1998-12-20" and r["age"] == 25         # Gregorian day count, age on 1 July 2024
+    assert r["positions"] == "ST, LW" and r["skill_moves"] == 5 and r["preferred_foot"] == "Right"
+    assert r["club"] == "Real Madrid" and r["league_id"] == 53 and r["nationality"] == "France"
+    assert r["value_eur"] == 160e6 and r["wage_eur"] == 380e3 and r["name"] == "Kylian Mbapp\u00e9"
+
+
+def test_detect_layout_and_priority(tmp_path):
+    from fcscout.data import detect_layout, load_raw_dir
+    t = Path(tmp_path)
+    pd.DataFrame({"sofifa_id": [1], "short_name": ["A"], "overall": [70], "potential": [75], "age": [20],
+                  "player_positions": ["ST"]}).to_csv(t / "players_22.csv", index=False)
+    pd.DataFrame({"ID": [1], "↓OVA": [60], "POT": [65], "Age": [20], "Positions": ["ST"]}).to_csv(
+        t / "players_22_sofifa_export.csv", index=False)
+    _ea_db(t / "ea_db_25")
+    assert detect_layout(t / "players_22.csv") == "kaggle"
+    assert detect_layout(t / "players_22_sofifa_export.csv") == "sofifa_export"
+    assert detect_layout(t / "ea_db_25") == "ea_database"
+    df = load_raw_dir(t, fill=False)
+    assert df.loc[df["edition"] == 22, "overall"].tolist() == [70]   # Kaggle layout wins
+    assert sorted(df["edition"].unique().tolist()) == [22, 25]
+
+
+def test_derived_ratings_follow_ea_formula():
+    from fcscout.data import STANDARD_COLUMNS, derive_ratings
+    row = {c: np.nan for c in STANDARD_COLUMNS}
+    row.update({a: 60.0 for a in OUTFIELD_ATTRS + GK_ATTRS})
+    row.update(id=1, edition=24, primary_pos="ST", overall=70, potential=75, age=24, ratings_derived=0,
+               movement_acceleration=90.0, movement_sprint_speed=80.0)
+    df = pd.DataFrame([row, dict(row, id=2, edition=22, pace=50.0, pos_st=55.0)])
+    out = derive_ratings(df)
+    a = out[out["id"] == 1].iloc[0]
+    assert a["pace"] == np.floor(0.45 * 90 + 0.55 * 80 + 0.5)    # EA's pace formula
+    assert a["pos_ls"] == a["pos_st"] == a["pos_rs"] and a["ratings_derived"] == 1
+    b = out[out["id"] == 2].iloc[0]
+    assert b["pace"] == 50 and b["pos_st"] == 55 and b["ratings_derived"] == 0   # published values kept
+
+
+def test_leagues_by_id_and_from_neighbouring_edition():
+    from fcscout.data import fill_leagues
+    df = pd.DataFrame({"edition": [22, 23, 24, 24], "club": ["Arsenal", "Arsenal FC", "Arsenal", "Basel"],
+                       "league": ["English Premier League", np.nan, "Premier League", "Super League"],
+                       "league_id": [np.nan, np.nan, 13, 189]})
+    out = fill_leagues(df)
+    assert out["league"].tolist() == ["Premier League (England)"] * 3 + ["Super League (Switzerland)"]
+
+
+def test_money_estimated_only_where_missing():
+    from fcscout.data import impute_money
+    rng = np.random.default_rng(0)
+    rows = []
+    for ed in (24, 25, 26):
+        for i in range(400):
+            ovr = int(rng.integers(55, 90))
+            known = ed != 25 or i < 120
+            rows.append(dict(id=i, edition=ed, overall=ovr, potential=ovr + 3, age=25,
+                             international_reputation=1, contract_end=2000 + ed + 2,
+                             primary_pos="CM", club=f"C{i % 20}", league_id=13,
+                             value_eur=np.exp(0.2 * ovr) if known else np.nan,
+                             wage_eur=np.exp(0.12 * ovr) if known else np.nan, money_estimated=0))
+    df = pd.DataFrame(rows)
+    out = impute_money(df)
+    assert out["value_eur"].notna().all()
+    assert out.loc[out["edition"] != 25, "money_estimated"].eq(0).all()
+    est = out[(out["edition"] == 25) & (out["money_estimated"] == 1)]
+    assert len(est) == 280
+    ratio = est["value_eur"] / np.exp(0.2 * est["overall"])
+    assert ratio.between(0.7, 1.4).mean() > 0.9
+
+
+def test_time_splits_reproduce_original_and_never_leak():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from train_forecaster import make_splits
+    assert {h: (list(v["test"][0])[-1], v["test"][1]) for h, v in make_splits(22).items()} == {1: (20, 21), 2: (18, 20)}
+    for last in (22, 26):
+        for h, sp in make_splits(last).items():
+            for train_eds, test_t in (sp["tune"], sp["test"]):
+                assert max(train_eds) + h <= test_t        # no training target from the test edition on
 
 
 def _csv(tmp_path, name, df):

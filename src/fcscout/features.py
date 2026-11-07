@@ -2,8 +2,9 @@
 
 One row = one player in edition t, with features known at t and the targets
 overall_{t+1}, overall_{t+2} (NaN when the player is not in that edition).
-Only columns present in *every* edition are used, so the test edition never
-sees a feature the training editions lacked.
+Only columns present in (nearly) every edition are used, so the test edition never
+sees a feature the training editions lacked. Work rates were dropped when FC 25/26
+were added: neither source publishes them.
 """
 from __future__ import annotations
 
@@ -17,7 +18,7 @@ CAT_FEATURES = ["pos_group", "primary_pos", "preferred_foot"]
 NUM_FEATURES = (
     ["age", "overall", "potential", "gap", "height_cm", "weight_kg", "bmi",
      "log_value", "log_wage", "log_value_rel", "international_reputation", "weak_foot",
-     "skill_moves", "work_rate_att", "work_rate_def", "contract_years_left", "on_loan",
+     "skill_moves", "contract_years_left", "on_loan",
      "club_strength", "club_depth_rank", "group_rank_at_club", "ovr_vs_club",
      "has_club", "prev_delta", "prev_pot_delta", "prev2_delta", "editions_seen", "n_positions"]
     + FACE_STATS + OUTFIELD_ATTRS + GK_ATTRS
