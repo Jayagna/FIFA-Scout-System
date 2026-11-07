@@ -98,7 +98,7 @@ upgrade per euro; the better of the two is used).
   (**+24%** more improvement from the same money).
 * Median solver time **0.4 s** (max 2.2 s) over the full transfer market (~18k players).
 
-**Do forecasts make better signings?** Only modestly — see [Decision backtest](#decision-backtest).
+**Do forecasts make better signings?** Two seasons out, yes, modestly (+2.5 XI points, interval excluding zero); one season out, no. See [Decision backtest](#decision-backtest).
 
 ### Replacement finder
 * **Identity check:** taking each player's FC 25 attributes and searching the FC 26
@@ -128,9 +128,10 @@ schema.
 How the gaps are filled, and how well:
 * **Card stats and position ratings** are weighted sums of the 34 detailed attributes. The
   weights were recovered by non-negative least squares on FC 26 and snapped to whole
-  hundredths (EA's own grid): they reproduce **every position rating and pace/physical
-  exactly** on FIFA 22, an edition the fit never saw, and the other card stats to within
-  0.06 points (`scripts/fit_rating_formulas.py`, `reports/rating_formulas.json`). The FIFA 23
+  hundredths (EA's own grid). On FIFA 22, an edition the fit never saw, they reproduce pace
+  and physical for every player, each position rating exactly for 99.6–99.96% of players
+  (the rest are one point off), and the other card stats to within 0.06 points on average
+  (`scripts/fit_rating_formulas.py`, `reports/rating_formulas.json`). The FIFA 23
   file's own position ratings include sofifa's boost (they exceed the player's overall), so
   they are recomputed too.
 * **FC 25 values and wages** exist for the ~5.3k players in the sofifa sheet next to the
@@ -206,19 +207,20 @@ the numbers stay comparable. All four variants that were run are reported.
 | 1 season (FIFA 18, 19) | 76 | +0.7 [-0.1, +1.6] | +0.0 | 33.1 / 32.1 / 32.8 | 31 / 29 / 32 |
 | 1 season, signings ≤ 29 | 76 | +0.1 [-0.5, +0.7] | -0.5 | 27.9 / 27.1 / 27.7 | 43 / 42 / 48 |
 | 2 seasons (FIFA 18, 20) | 74 | +2.5 [+0.7, +4.3] | -0.5 | 33.3 / 29.7 / 31.8 | 109 / 88 / 91 |
-| 2 seasons, signings ≤ 29 † | 74 | +2.5 [-0.1, +5.5] | -2.2 | 28.2 / 22.2 / 24.8 | 44 / 35 / 54 |
-
-† From the previous build (8 editions, with work rates); the rerun on the current build is in progress.
+| 2 seasons, signings ≤ 29 | 74 | +1.6 [-0.7, +4.4] | -3.1 | 28.2 / 22.2 / 24.9 | 44 / 35 / 56 |
 
 What this says, plainly:
 * **One season ahead, forecasts don't change the outcome.** Rating changes for established
-  players are small, so all three methods mostly buy the same players.
-* **Two seasons ahead, the forecast helps a little over current ratings**, but the intervals
-  include or nearly include zero, so this is suggestive rather than proven.
-* **The simple potential baseline did as well or better than the growth model here**, even
-  though the model predicts individual ratings more accurately. The largest single loss over
-  two seasons is signings who leave the game (retire or move to unlicensed leagues); the
-  forecaster is trained only on players who stay, so it does not price that risk.
+  players are small, so all three methods mostly buy the same players, and both intervals
+  include zero.
+* **Two seasons ahead, planning with the forecast beats planning on current ratings:**
+  +2.5 XI points, with a 95% interval of +0.7 to +4.3 that excludes zero. With signings
+  capped at 29 the gain is smaller (+1.6) and no longer certain.
+* **The simple potential baseline did as well or better than the growth model here**
+  (−0.5 and −3.1 XI points for the forecast two seasons out), even though the model predicts
+  individual ratings more accurately. The largest single loss over two seasons is signings
+  who leave the game (retire or move to unlicensed leagues); the forecaster is trained only
+  on players who stay, so it does not price that risk.
 
 The natural next step is a second model for the probability a player is still in the game
 and optimising expected rating (rating × that probability), which keeps the program linear.
