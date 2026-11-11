@@ -28,14 +28,16 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
     wage: h("input", { type: "number", id: "sq-wage", min: 0, max: 50000, step: 10, placeholder: "Wage bill + 15%" }),
     signings: h("input", { type: "range", id: "sq-sign", min: 1, max: 6, value: 3 }),
     age: h("input", { type: "range", id: "sq-age", min: 17, max: 40, value: 40 }),
-    sales: h("input", { type: "checkbox", id: "sq-sales" }),
-    maxSales: h("input", { type: "range", id: "sq-maxsales", min: 1, max: 6, value: 3, disabled: true }),
+    sales: h("input", { type: "checkbox", id: "sq-sales", checked: query.get("sales") !== "0" }),
+    maxSales: h("input", { type: "range", id: "sq-maxsales", min: 1, max: 8, value: 4, disabled: query.get("sales") === "0" }),
+    bench: h("input", { type: "range", id: "sq-bench", min: 0, max: 50, step: 5, value: query.get("bench") ?? 30 }),
     markup: h("input", { type: "range", id: "sq-markup", min: 1, max: 2, step: 0.05, value: 1.2 }),
     market: h("select", { id: "sq-market" }, h("option", { value: "" }, "Anywhere"), leagueNames.map((n) => h("option", n))),
     realistic: h("input", { type: "checkbox", id: "sq-real", checked: query.get("realistic") !== "0" }),
     rumours: h("input", { type: "checkbox", id: "sq-rum", checked: hasRumours && query.get("rumours") === "1", disabled: !hasRumours }),
   };
-  const outs = { signings: h("output", "3"), age: h("output", "Any"), maxSales: h("output", "3"), markup: h("output", "1.20×") };
+  const outs = { signings: h("output", "3"), age: h("output", "Any"), maxSales: h("output", "4"), markup: h("output", "1.20×"),
+                 bench: h("output", benchText(query.get("bench") ?? 30)) };
   const fillClubs = (pick) => {
     const clubs = clubsOf(f.league.value);
     f.club.replaceChildren(...clubs.map((c) => h("option", { selected: c === pick }, c)));
@@ -65,7 +67,7 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
   view.append(h("div.wrap.page",
     h("header.page-head",
       h("h1", "Squad builder"),
-      h("p", "Pick your club and budget. The planner checks every affordable combination of signings (and sales, if you allow them) and returns the strongest starting XI it can field, plus two different alternatives.")),
+      h("p", "Pick your club and budget. The planner checks every affordable combination of signings and sales and returns the strongest squad it can build: the starting XI plus a second XI of backups, which play a real share of the minutes. Players in neither XI are the ones it sells to fund signings. You also get two different alternatives.")),
     h("div.builder",
       h("form.panel", { onsubmit: (e) => { e.preventDefault(); state.seed = null; solve(false); } },
         h("h2", "Your club"),
@@ -84,6 +86,8 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
         h("label.check", f.rumours, hasRumours ? "Favour players linked by transfer rumours" : "Favour rumoured players (no rumour data yet)"),
         h("label.check", f.sales, "Sell players to raise money"),
         rangeField("Most sales", f.maxSales, outs.maxSales, "sq-maxsales"),
+        rangeField("Bench counts for", f.bench, outs.bench, "sq-bench"),
+        h("p.small.muted", "How much the second XI matters next to the starters. 0% plans for the starting XI only and treats everyone else as money; 30% is about the share of minutes backups get."),
         picks,
         h("div.btn-row", run, shuffle)),
       h("section", { "aria-label": "Plan" },
@@ -97,6 +101,7 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
   f.age.addEventListener("input", () => (outs.age.textContent = f.age.value >= 40 ? "Any" : f.age.value));
   f.maxSales.addEventListener("input", () => (outs.maxSales.textContent = f.maxSales.value));
   f.markup.addEventListener("input", () => (outs.markup.textContent = `${(+f.markup.value).toFixed(2)}×`));
+  f.bench.addEventListener("input", () => (outs.bench.textContent = benchText(f.bench.value)));
   f.sales.addEventListener("change", () => (f.maxSales.disabled = !f.sales.checked));
   shuffle.addEventListener("click", () => { state.seed = Math.floor(Math.random() * 1e9); solve(false); });
   tabs.addEventListener("click", (e) => {
@@ -125,7 +130,8 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
     status.textContent = "";
     setQuery({ league: f.league.value, club: f.club.value, formation: f.formation.value, budget: f.budget.value,
                mode: state.mode === "balanced" ? "" : state.mode, realistic: f.realistic.checked ? "" : "0",
-               rumours: f.rumours.checked ? "1" : "" });
+               rumours: f.rumours.checked ? "1" : "", sales: f.sales.checked ? "" : "0",
+               bench: f.bench.value === "30" ? "" : f.bench.value });
     const body = {
       club: f.club.value, formation: f.formation.value,
       budget: baseline ? 0 : +f.budget.value || 0,
@@ -133,7 +139,7 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
       max_signings: baseline ? 1 : +f.signings.value,
       max_age: +f.age.value >= 40 ? null : +f.age.value,
       objective: state.mode, allow_sales: !baseline && f.sales.checked,
-      max_sales: +f.maxSales.value, markup: +f.markup.value,
+      max_sales: +f.maxSales.value, markup: +f.markup.value, bench_weight: +f.bench.value / 100,
       market_leagues: f.market.value ? [f.market.value] : null,
       realistic: f.realistic.checked, rumours: f.rumours.checked,
       alternatives: baseline ? 0 : (state.seed === null ? 2 : 0), seed: baseline ? null : state.seed,
@@ -166,6 +172,7 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
         baseline ? null : h("em", `${signed(p.xi_rating - plan.baseline_xi_rating)} vs no signings`)),
       baseline ? null : h("div.score", h("b", money(p.spend)), h("span", `spent of ${money(plan.budget)}`)),
       p.income ? h("div.score", h("b", money(p.income)), h("span", "raised from sales")) : null,
+      p.bench?.length ? h("div.score", h("b", p.bench_rating.toFixed(1)), h("span", "second XI rating")) : null,
       h("div.score", h("b", money(p.wage_bill)), h("span", `wages a week, cap ${money(plan.wage_budget)}`)),
     ].filter(Boolean));
 
@@ -203,7 +210,20 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
       ? `${plan.club}'s strongest XI from the current squad. Numbers on the pitch are each player's rating at that position${plan.objective === "now" ? "" : " in the season you're planning for"}.`
       : [`Best of ${p.candidates.toLocaleString()} candidates, solved exactly in ${plan.solve_seconds.toFixed(1)}s`, ...extras, ...(p.notes || [])].join(". ") + ".";
 
-    if (baseline) { deals.replaceChildren(); return; }
+    const benchBox = p.bench?.length ? h("section.bench-box",
+      h("h2", "Second XI"),
+      h("p.small.muted", "The first backup at each position, after the signings and sales."),
+      h("div.bench-list", p.bench.map((b) => h(`a.bench-row${b.signing ? ".new" : ""}`, { href: `#/player/${b.player.id}` },
+        face(b.player), h("span.slot", b.slot.replace(/\d$/, "")), h("span.nm", b.player.name, b.signing ? h("em", " new") : null),
+        h("b", Math.round(b.rating_if_stays ?? b.rating)))))) : null;
+    const surplus = p.surplus || [];
+    const surplusBox = surplus.length && !baseline ? h("section.bench-box",
+      h("h2", `In neither XI (${surplus.length})`),
+      h("p.small.muted", `Selling all of them would raise about ${money(surplus.reduce((a, x) => a + x.fee, 0))} and free ${money(surplus.reduce((a, x) => a + (x.wage || 0), 0))} a week in wages. ` +
+        (f.sales.checked ? "Allow more sales to let the planner spend that money." : "Tick \u201cSell players to raise money\u201d to let the planner use it.")),
+      h("div.deal-list", surplus.map((b) => deal(b, "sell", meta, plan.objective)))) : null;
+
+    if (baseline) { deals.replaceChildren(...[benchBox].filter(Boolean)); return; }
     const actions = (pl) => h("div.deal-actions",
       h("button.mini", { type: "button", onclick: () => { state.lock.delete(pl.id); state.ban.set(pl.id, pl.name); drawPicks(); solve(false); } }, "Not him"),
       h("button.mini", { type: "button", "aria-pressed": String(state.lock.has(pl.id)), onclick: () => { state.ban.delete(pl.id); state.lock.set(pl.id, pl.name); drawPicks(); solve(false); } }, state.lock.has(pl.id) ? "Kept" : "Keep him"));
@@ -213,7 +233,8 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
           : h("p.muted", "No signing improves the XI within these limits. Raise the budget or wage cap.")),
       h("div", h("h2", { style: { fontSize: "var(--t-md)", margin: "0 0 10px" } }, `Sell (${p.sales.length})`),
         p.sales.length ? h("div.deal-list", p.sales.map((b) => deal(b, "sell", meta, plan.objective)))
-          : h("p.muted", f.sales.checked ? "No sale makes the XI stronger." : "Sales are switched off.")));
+          : h("p.muted", f.sales.checked ? "No sale makes the squad stronger." : "Sales are switched off.")),
+      ...[benchBox, surplusBox].filter(Boolean));
   }
 
   function drawPicks() {
@@ -251,6 +272,10 @@ export async function render(view, { meta, query, setQuery, isCurrent }) {
   drawPicks();
   loadRumours();
   solve(true);
+}
+
+function benchText(v) {
+  return +v === 0 ? "Starters only" : `${v}%`;
 }
 
 function stageText(stage) {

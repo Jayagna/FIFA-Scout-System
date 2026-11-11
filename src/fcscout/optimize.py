@@ -1,17 +1,24 @@
-"""Squad builder: choose who to buy (and optionally sell) to get the strongest XI.
+"""Squad builder: choose who to buy (and optionally sell) to get the strongest squad.
 
 Mixed-integer program, solved exactly with HiGHS (scipy.optimize.milp):
 
   variables  x_p in {0,1}  player p is in the final squad (current players: keep;
                            candidates: buy)
              y_pk in {0,1} player p starts in formation slot k
-  maximise   sum_pk r_pk * y_pk  - tiny tie-breakers (spend less, sell less)
-  s.t.       sum_p y_pk = 1                         every slot filled
-             sum_k y_pk <= x_p                      a player starts at most once
+             z_pk in {0,1} player p is the first backup for slot k (the "second XI")
+  maximise   sum_pk r_pk * y_pk + w * sum_pk r_pk * z_pk
+             - tiny tie-breakers (spend less, sell less)
+  s.t.       sum_p y_pk = 1, sum_p z_pk <= 1        every slot has a starter (and a backup)
+             sum_k (y_pk + z_pk) <= x_p             a player fills one role at most
              sum_buy cost_p - sum_sold sell_p <= transfer budget
              sum_squad wage_p <= wage budget
              #buys <= max_signings, #sales <= max_sales
              squad size and per-position depth limits
+
+w (bench_weight) is how much the second XI counts: backups play a real share of the
+minutes (rotation, injuries, suspensions), so with w > 0 a useful backup is worth
+keeping and a player in neither XI is free to sell to fund signings. w = 0 plans for
+the starting XI only.
 
 r_pk is the player's sofifa rating *at that position* (an ST playing LW is
 rated as a LW), optionally shifted by the growth forecast. With a stay-in-the-game
@@ -59,6 +66,7 @@ class TransferSettings:
     max_signings: int = 3
     allow_sales: bool = False
     max_sales: int = 3
+    bench_weight: float = 0.0            # how much the second XI counts (0 = starting XI only)
     buy_markup: float = 1.0              # asking price = value * markup (capped by release clause)
     sell_factor: float = 0.9             # sale fee = value * factor
     squad_min: int = 18
@@ -140,11 +148,12 @@ def _costs(df: pd.DataFrame, s: TransferSettings):
 def _slot_thresholds(R_squad: np.ndarray, s: TransferSettings) -> np.ndarray:
     """T_k: a signing rated <= T_k at slot k is never needed there.
 
-    If at least r = 11 + max_sales squad players rate >= x at slot k, then in any
-    plan that starts a signing rated x at k, one of those r players is neither
-    starting nor sold and can take the slot instead. So T_k is the r-th best squad
-    rating at slot k (exact pruning, no optimality lost)."""
-    r = 11 + (s.max_sales if s.allow_sales else 0)
+    If at least r = L + max_sales squad players rate >= x at slot k (L = 11 lineup
+    places, or 22 when the second XI counts), then in any plan that uses a signing
+    rated x at k, one of those r players is in neither lineup nor sold and can take
+    his place instead. So T_k is the r-th best squad rating at slot k (exact pruning,
+    no optimality lost)."""
+    r = (22 if s.bench_weight > 0 else 11) + (s.max_sales if s.allow_sales else 0)
     if len(R_squad) < r:
         return np.zeros(R_squad.shape[1])
     return -np.sort(-R_squad, axis=0)[r - 1]
@@ -177,30 +186,42 @@ def _undominated(R: np.ndarray, fee: np.ndarray, wage: np.ndarray, ids: np.ndarr
 def _candidate_pool(squad: pd.DataFrame, market: pd.DataFrame, s: TransferSettings,
                     R_squad: np.ndarray, R_market: np.ndarray, ask: np.ndarray,
                     wage: np.ndarray, locked: np.ndarray | None = None, n_excluded: int = 0):
-    """Exact reduction of the transfer market. Returns (pool indices, thresholds T).
+    """Exact reduction of the transfer market.
 
-    With n_excluded earlier plans ruled out, a player needs max_signings + n_excluded
-    dominators to be dropped: of those, at least n_excluded + 1 are unused in any plan,
-    swapping each in gives a different set of signings, and at most n_excluded sets are
-    excluded, so one swap is always allowed. Locked players are always kept."""
+    Returns (pool indices, thresholds T, slot_ok): slot_ok[i, k] says whether pool player
+    i may be used at slot k at all. Two exact rules:
+      * T_k (see _slot_thresholds): below it a signing is never needed at k;
+      * slot-wise dominance: if at least m players of the same position group are at
+        least as good *at slot k* and no dearer in fee or wage, then in any plan that
+        uses p at k, one of them is not signed and can take p's place there (same
+        role, same group, no more money), so the pair (p, k) can go.
+    With n_excluded earlier plans ruled out, m = max_signings + n_excluded: of those
+    dominators at least n_excluded + 1 are unused, each swap gives a different set of
+    signings, and at most n_excluded sets are excluded, so one swap is always allowed.
+    Locked players are always kept."""
     max_spend = s.budget + (s.sell_factor * squad["value_eur"].fillna(0).sort_values(ascending=False)
                             .head(s.max_sales).sum() if s.allow_sales else 0)
     ok = ask <= max_spend
     if s.max_age is not None:
         ok &= market["age"].to_numpy() <= s.max_age
     T = _slot_thresholds(R_squad, s)
-    R_eff = np.where(R_market > T[None, :], R_market, 0.0)
-    _, first = np.unique(R_eff, axis=1, return_index=True)   # duplicate slots (CB1/CB2)
-    R_u = R_eff[:, np.sort(first)]
-    useful = ok & (R_eff > 0).any(axis=1)
+    R_eff = np.where((R_market > T[None, :]) & ok[:, None], R_market, 0.0)
     groups = market["pos_group"].astype(str).to_numpy()
     ids = market["id"].to_numpy()
     keep = np.zeros(len(market), bool)
+    slot_ok = np.zeros(R_market.shape, bool)
     m = max(s.max_signings, 1) + n_excluded
+    _, first, inverse = np.unique(R_eff, axis=1, return_index=True, return_inverse=True)  # CB1/CB2
     for g in np.unique(groups):
-        idx = np.where(useful & (groups == g))[0]
-        if len(idx):
-            keep[idx[_undominated(R_u[idx], ask[idx], wage[idx], ids[idx], m)]] = True
+        in_g = groups == g
+        for u, col in enumerate(first):
+            idx = np.where(in_g & (R_eff[:, col] > 0))[0]
+            if not len(idx):
+                continue
+            good = idx[_undominated(R_eff[idx, col:col + 1], ask[idx], wage[idx], ids[idx], m)]
+            slot_ok[np.ix_(good, np.where(inverse.ravel() == u)[0])] = True
+    keep |= slot_ok.any(axis=1)
+    for g in np.unique(groups):
         if s.allow_sales:
             # bench fillers can matter when sales would break squad-size/depth limits:
             # keep the players not beaten on both fee and wage by m others
@@ -210,7 +231,9 @@ def _candidate_pool(squad: pd.DataFrame, market: pd.DataFrame, s: TransferSettin
                 keep[idx[_undominated(zero, ask[idx], wage[idx], ids[idx], m)]] = True
     if locked is not None:
         keep |= locked
-    return np.where(keep)[0], T
+        slot_ok[locked] = R_market[locked] > 0      # locked players may play anywhere they can
+    pool = np.where(keep)[0]
+    return pool, T, slot_ok[pool]
 
 
 @dataclass
@@ -228,6 +251,9 @@ class Plan:
     n_candidates: int
     solve_seconds: float
     notes: list = field(default_factory=list)
+    bench: pd.DataFrame = field(default_factory=pd.DataFrame)     # second XI (bench_weight > 0)
+    surplus: pd.DataFrame = field(default_factory=pd.DataFrame)   # kept, but in neither XI
+    bench_rating: float = float("nan")
 
 
 def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: TransferSettings,
@@ -274,8 +300,8 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
         notes.append(f"{len(missing)} locked player(s) can't be bought (no club, value or wage in the data)")
     excluded = [set(int(i) for i in ids) for ids in (exclude_buy_sets or []) if len(ids)]
     ask_all, _, wage_mk_all = _costs(market, s)
-    pool, T = _candidate_pool(squad, market, s, R_sq, R_mk_obj, ask_all, wage_mk_all,
-                              locked=locked_all, n_excluded=len(excluded))
+    pool, T, slot_ok = _candidate_pool(squad, market, s, R_sq, R_mk_obj, ask_all, wage_mk_all,
+                                       locked=locked_all, n_excluded=len(excluded))
     mk = market.iloc[pool].reset_index(drop=True)
     R_mk = R_mk_obj[pool]
     R_mk_report = R_mk_true[pool]
@@ -292,17 +318,20 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
     # y variables only where they can matter: any squad player with a rating there,
     # signings only above the slot threshold (see _slot_thresholds); locked signings
     # wherever they can play
-    pairs = [(p, k) for p in range(nS) for k in range(K) if R[p, k] > 0]
-    pairs += [(p, k) for p in range(nS, nP) for k in range(K)
-              if R[p, k] > (0 if locked[p - nS] else max(T[k], 0))]
+    one_role = [(p, k) for p in range(nS) for k in range(K) if R[p, k] > 0]
+    one_role += [(p, k) for p in range(nS, nP) for k in range(K)
+                 if slot_ok[p - nS, k] and R[p, k] > (0 if locked[p - nS] else max(T[k], 0))]
+    w = float(s.bench_weight)
+    roles = (0, 1) if w > 0 else (0,)
+    pairs = [(p, k, role) for role in roles for p, k in one_role]   # role 0 = XI, 1 = second XI
     nY = len(pairs)
     n = nP + nY
     c = np.zeros(n)
     # tie-breakers, far below one rating point: cheaper buys, fewer sales
     c[nS:nP] = ask * 1e-10
     c[:nS] = -1e-3  # keeping a player is (very slightly) preferred over selling him
-    for j, (p, k) in enumerate(pairs):
-        c[nP + j] = -R[p, k]
+    for j, (p, k, role) in enumerate(pairs):
+        c[nP + j] = -R[p, k] * (1.0 if role == 0 else w)
 
     rows, cols, vals, lo, hi = [], [], [], [], []
     r = 0
@@ -317,13 +346,16 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
         hi.append(ub)
         r += 1
 
-    by_slot = {k: {} for k in range(K)}
+    by_slot = {(k, role): {} for k in range(K) for role in roles}
     by_player = {p: {} for p in range(nP)}
-    for j, (p, k) in enumerate(pairs):
-        by_slot[k][nP + j] = 1.0
+    for j, (p, k, role) in enumerate(pairs):
+        by_slot[k, role][nP + j] = 1.0
         by_player[p][nP + j] = 1.0
-    for k in range(K):
-        add(by_slot[k], 1, 1)
+    for (k, role), coefs in by_slot.items():
+        if role == 0:
+            add(coefs, 1, 1)                 # every slot has a starter
+        elif coefs:
+            add(coefs, 0, 1)                 # and at most one first backup
     for p in range(nP):
         if by_player[p]:
             add({**by_player[p], p: -1.0}, -np.inf, 0)
@@ -379,18 +411,26 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
         return Plan(res.message, np.nan, pd.DataFrame(), empty_buys, empty_sales,
                     0, 0, 0, np.nan, _xi_only(squad, R_sq), nC, dt, notes)
     x = np.round(res.x).astype(int)
-    xi_rows = []
+    lineup_rows = {0: [], 1: []}
     allp = pd.concat([squad.assign(_src="squad"), mk.assign(_src="signing")], ignore_index=True)
-    for j, (p, k) in enumerate(pairs):
+    used = set()
+    for j, (p, k, role) in enumerate(pairs):
         if x[nP + j]:
             row = allp.iloc[p]
-            xi_rows.append({"slot": slots[k][0], "name": row["name"], "id": row["id"],
-                            "rating_at_slot": R_true[p, k], "rating_if_stays": R_stays[p, k],
-                            "stay": float(row["_stay"]) if "_stay" in row and pd.notna(row["_stay"]) else 1.0,
-                            "overall": row["overall"], "age": row["age"],
-                            "source": row["_src"], "club": row.get("club")})
+            used.add(p)
+            lineup_rows[role].append({"slot": slots[k][0], "name": row["name"], "id": row["id"],
+                                      "rating_at_slot": R_true[p, k], "rating_if_stays": R_stays[p, k],
+                                      "stay": float(row["_stay"]) if "_stay" in row and pd.notna(row["_stay"]) else 1.0,
+                                      "overall": row["overall"], "age": row["age"],
+                                      "source": row["_src"], "club": row.get("club")})
     order = {sl[0]: i for i, sl in enumerate(slots)}
-    xi = pd.DataFrame(xi_rows).sort_values("slot", key=lambda s_: s_.map(order)).reset_index(drop=True)
+
+    def lineup(rows_):
+        if not rows_:
+            return pd.DataFrame(columns=["slot", "name", "id", "rating_at_slot", "rating_if_stays", "stay",
+                                         "overall", "age", "source", "club"])
+        return pd.DataFrame(rows_).sort_values("slot", key=lambda s_: s_.map(order)).reset_index(drop=True)
+    xi, bench = lineup(lineup_rows[0]), lineup(lineup_rows[1])
     bought = np.where(x[nS:nP] == 1)[0]
     buys = mk.iloc[bought][["id", "name", "age", "club", "primary_pos", "overall", "potential",
                             "value_eur", "wage_eur"]].copy()
@@ -398,10 +438,18 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
     sold = np.where(x[:nS] == 0)[0]
     sales = squad.iloc[sold][["id", "name", "age", "primary_pos", "overall", "value_eur"]].copy()
     sales["fee"] = sell[sold]
+    surplus = pd.DataFrame()
+    if w > 0:
+        spare = [i for i in range(nS) if x[i] == 1 and i not in used]
+        surplus = squad.iloc[spare][["id", "name", "age", "primary_pos", "overall", "value_eur", "wage_eur"]].copy()
+        surplus["fee"] = sell[spare]
+        surplus = surplus.sort_values("fee", ascending=False)
     wage_bill = float(wage_sq @ x[:nS] + (wage_mk @ x[nS:nP] if nC else 0))
     return Plan("optimal" if res.status == 0 else res.message, float(-res.fun), xi, buys, sales,
                 float(buys["fee"].sum()), float(sales["fee"].sum()), wage_bill,
-                float(xi["rating_at_slot"].mean()), _xi_only(squad, R_sq), nC, dt, notes)
+                float(xi["rating_at_slot"].mean()), _xi_only(squad, R_sq), nC, dt, notes,
+                bench=bench, surplus=surplus,
+                bench_rating=float(bench["rating_at_slot"].mean()) if len(bench) else float("nan"))
 
 
 def _xi_only(squad: pd.DataFrame, R_sq: np.ndarray) -> float:

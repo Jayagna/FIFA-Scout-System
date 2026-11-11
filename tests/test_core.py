@@ -516,3 +516,53 @@ def _obj_for(squad, market, s, stay_sq, stay_mk, bonus, chosen):
 def _assign_sum(R, _):
     r, c = linear_sum_assignment(-R)
     return R[r, c].sum()
+
+
+def _brute_force_bench(squad, market, s):
+    """Best XI + w * second XI over every set of sales and signings (assignment with the
+    XI places forced: a big constant on XI columns, taken off again)."""
+    R_sq = slot_ratings(squad, s.formation)
+    R_mk = slot_ratings(market, s.formation)
+    ask = market["value_eur"].to_numpy() * s.buy_markup
+    sell = squad["value_eur"].to_numpy() * s.sell_factor
+    wq, wm = squad["wage_eur"].to_numpy(), market["wage_eur"].to_numpy()
+    K, big, best = R_sq.shape[1], 1e4, -1
+    for ns in range(s.max_sales + 1):
+        for sold in itertools.combinations(range(len(squad)), ns):
+            kept = [i for i in range(len(squad)) if i not in sold]
+            for k in range(s.max_signings + 1):
+                for combo in itertools.combinations(range(len(market)), k):
+                    combo = list(combo)
+                    if ask[combo].sum() > s.budget + sell[list(sold)].sum() + 1e-6:
+                        continue
+                    if wq[kept].sum() + wm[combo].sum() > s.wage_budget:
+                        continue
+                    R = np.vstack([R_sq[kept], R_mk[combo]]) if combo else R_sq[kept]
+                    gain = np.hstack([R + big * (R > 0), s.bench_weight * R])
+                    r, c = linear_sum_assignment(-gain)
+                    if (c < K).sum() < K or (R[r[c < K], c[c < K]] <= 0).any():
+                        continue
+                    best = max(best, gain[r, c].sum() - big * K)
+    return best
+
+
+def test_second_xi_matches_brute_force():
+    rng = np.random.default_rng(11)
+    for trial in range(4):
+        squad = _random_players(rng, 13, 0, "Mine")
+        market = _random_players(rng, 6, 1000, "Other")
+        s = TransferSettings(formation="4-4-2", budget=float(rng.integers(0, 25)) * 1e6,
+                             max_signings=2, allow_sales=True, max_sales=1, min_depth={},
+                             squad_min=0, squad_max=40, bench_weight=0.4,
+                             wage_budget=float(squad["wage_eur"].sum() * 1.1))
+        plan = optimize_squad(squad, market, s)
+        assert plan.status == "optimal"
+        got = plan.xi["rating_at_slot"].sum() + 0.4 * plan.bench["rating_at_slot"].sum()
+        bf = _brute_force_bench(squad, market, s)
+        assert abs(got - bf) < 1e-6, (trial, got, bf)
+        # every player has one role at most, and the surplus is everyone kept but unused
+        xi, bench = set(plan.xi["id"]), set(plan.bench["id"])
+        assert not xi & bench and len(xi) == 11
+        kept = set(squad["id"]) - set(plan.sales["id"])
+        assert set(plan.surplus["id"]) == kept - xi - bench
+

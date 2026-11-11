@@ -415,6 +415,23 @@ table.data a:hover { text-decoration: underline; text-decoration-color: var(--fl
 .deal.buy { border-left: 3px solid var(--flood); }
 .deal.sell { border-left: 3px solid var(--down); }
 
+/* second XI and surplus, under the deals */
+.bench-box h2 { font-size: var(--t-md); margin: 0 0 4px; }
+.bench-box > p { margin: 0 0 10px; }
+.bench-list { display: grid; gap: 6px; }
+.bench-row {
+  display: grid; grid-template-columns: 32px 44px 1fr auto; gap: 10px; align-items: center;
+  padding: 5px 10px 5px 6px; border-radius: var(--r-sm); background: var(--turf); border: 1px solid var(--line);
+  color: var(--chalk); text-decoration: none; transition: background .2s;
+}
+.bench-row:hover, .bench-row:focus-visible { background: var(--turf-2); }
+.bench-row .face { width: 32px; height: 32px; }
+.bench-row .slot { font-family: var(--display); font-weight: 700; color: var(--chalk-3); letter-spacing: .04em; }
+.bench-row .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bench-row .nm em { color: var(--flood); font-style: normal; font-size: var(--t-xs); }
+.bench-row b { font-family: var(--display); font-weight: 800; font-size: var(--t-lg); color: var(--flood); }
+.bench-row.new { border-left: 3px solid var(--flood); }
+
 /* ------------------------------------------------------------------ replacement finder */
 .finder { display: grid; grid-template-columns: 300px 1fr; gap: 28px; align-items: start; }
 @media (max-width: 900px) { .finder { grid-template-columns: 1fr; } }

@@ -361,6 +361,8 @@ REALISM_GAP = 3.0        # skip players at clubs this much stronger (mean of bes
 SHUFFLE_NOISE = 1.5      # rating points of random preference per player when shuffling
                          # (a shuffled plan is within 3 * 1.5 / 11 = 0.4 XI points of the best)
 RUMOUR_POINTS = 3.0      # extra rating points for a player strongly linked with the club
+BENCH_WEIGHT = 0.3       # the second XI counts 30% as much as the starting XI: backups play
+                         # a real share of minutes (rotation, injuries, suspensions)
 
 
 def _plan_dict(store: "Store", plan, layout: dict) -> dict:
@@ -372,7 +374,16 @@ def _plan_dict(store: "Store", plan, layout: dict) -> dict:
                            stay=float(x["stay"]), signing=x["source"] == "signing"))
     buys = [dict(brief(store.row(i)), fee=float(f)) for i, f in zip(plan.buys["id"], plan.buys["fee"])]
     sales = [dict(brief(store.row(i)), fee=float(f)) for i, f in zip(plan.sales["id"], plan.sales["fee"])]
-    return {"status": plan.status, "xi": xi, "buys": buys, "sales": sales,
+    bench = []
+    if plan.status == "optimal" and len(plan.bench):
+        for _, x in plan.bench.iterrows():
+            bench.append({"slot": x["slot"], "player": brief(store.row(x["id"])),
+                          "rating": float(x["rating_at_slot"]), "rating_if_stays": float(x["rating_if_stays"]),
+                          "signing": x["source"] == "signing"})
+    surplus = [dict(brief(store.row(i)), fee=float(f)) for i, f in zip(plan.surplus["id"], plan.surplus["fee"])] \
+        if len(plan.surplus) else []
+    return {"status": plan.status, "xi": xi, "buys": buys, "sales": sales, "bench": bench, "surplus": surplus,
+            "bench_rating": plan.bench_rating,
             "xi_rating": plan.xi_rating, "spend": plan.spend, "income": plan.income,
             "wage_bill": plan.wage_bill, "candidates": plan.n_candidates,
             "solve_seconds": plan.solve_seconds, "notes": plan.notes}
@@ -384,7 +395,7 @@ def squad_plan(store: Store, club_name: str, formation: str = "4-3-3", budget_m:
                markup: float = 1.2, market_leagues: list[str] | None = None,
                realistic: bool = True, alternatives: int = 2, seed: int | None = None,
                ban_ids: list[int] | None = None, lock_ids: list[int] | None = None,
-               rumours: bool = False) -> dict:
+               rumours: bool = False, bench_weight: float = BENCH_WEIGHT) -> dict:
     """Best signings for a club, plus up to `alternatives` different plans.
 
     objective: "now" (today's ratings), "next" (next season's forecast, weighted by the
@@ -392,7 +403,9 @@ def squad_plan(store: Store, club_name: str, formation: str = "4-3-3", budget_m:
     seasons, the default) or "future" (two seasons out).
     realistic: leave out players at much stronger clubs (they rarely move down).
     seed: shuffle - a small random preference per player, so repeated runs differ.
-    rumours: favour players linked with this club in the transfer-rumour feed."""
+    rumours: favour players linked with this club in the transfer-rumour feed.
+    bench_weight: how much the second XI (the best backup at each position) counts next
+    to the starting XI; 0 plans for the XI alone."""
     objective = MODE_ALIASES.get(objective, objective)
     if objective not in MODES:
         raise ValueError(f"unknown objective {objective}")
@@ -432,6 +445,7 @@ def squad_plan(store: Store, club_name: str, formation: str = "4-3-3", budget_m:
     s = TransferSettings(formation=formation, budget=budget_m * 1e6, wage_budget=wage_budget,
                          max_signings=int(max_signings), allow_sales=bool(allow_sales),
                          max_sales=int(max_sales), buy_markup=float(markup),
+                         bench_weight=max(0.0, min(1.0, float(bench_weight))),
                          max_age=None if not max_age or max_age >= 40 else int(max_age), time_limit=30)
     layout = {d["slot"]: d for d in formation_layout(formation)}
     kw = dict(boost_squad=bs, boost_market=bm, stay_squad=st_s, stay_market=st_m,
@@ -454,6 +468,8 @@ def squad_plan(store: Store, club_name: str, formation: str = "4-3-3", budget_m:
     return clean({
         "status": first["status"], "club": club_name, "formation": formation, "objective": objective,
         "xi": first["xi"], "buys": first["buys"], "sales": first["sales"], "plans": plans,
+        "bench": first.get("bench", []), "surplus": first.get("surplus", []),
+        "bench_weight": s.bench_weight,
         "xi_rating": first["xi_rating"], "baseline_xi_rating": plan.baseline_xi_rating,
         "spend": first["spend"], "income": first["income"], "wage_bill": first["wage_bill"],
         "wage_budget": wage_budget, "current_wage_bill": bill, "budget": budget_m * 1e6,

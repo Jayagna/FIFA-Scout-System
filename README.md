@@ -11,7 +11,7 @@ Three tools, one website:
 | Tool | What it answers | How |
 |---|---|---|
 | **Growth forecaster** | "What will this player be rated next year, and the year after?" | Gradient boosting on 136k player-season transitions, edition-based backtests |
-| **Squad builder** | "Who should I buy (and sell) with €X and a wage cap to get the best XI?" | Mixed-integer program solved exactly with HiGHS, weighted by each player's chance of still being in the game, optionally steered by real transfer rumours |
+| **Squad builder** | "Who should I buy (and sell) with €X and a wage cap to get the best squad?" | Mixed-integer program solved exactly with HiGHS, weighted by each player's chance of still being in the game, optionally steered by real transfer rumours |
 | **Replacement finder** | "Who plays like my star but costs half as much?" | Similarity search over standardised attribute profiles (FAISS / NumPy) |
 
 I built it because I play a lot of career mode and kept making transfer decisions on
@@ -191,14 +191,23 @@ edition (`scripts/train_forecaster.py`, `make_splits`).
 
 ### Squad builder (`fcscout/optimize.py`)
 ```
-maximise    Σ r[p,k]·y[p,k]                      r = the player's rating at that position
-subject to  Σ_p y[p,k] = 1          every XI slot filled
-            Σ_k y[p,k] ≤ x[p]       a player starts at most once, only if in the squad
+maximise    Σ r[p,k]·y[p,k] + w·Σ r[p,k]·z[p,k]  r = the player's rating at that position
+subject to  Σ_p y[p,k] = 1          every XI slot has a starter
+            Σ_p z[p,k] ≤ 1          ... and a first backup (the second XI)
+            Σ_k y[p,k] + z[p,k] ≤ x[p]   one role per player, only if in the squad
             Σ fees(buys) − Σ fees(sales) ≤ transfer budget
             Σ wages(final squad) ≤ wage budget
             #buys ≤ max signings,  #sales ≤ max sales,  squad size and depth per position
             x, y binary
 ```
+**Whole squad, not just the XI.** `w` (default 0.3, "Bench counts for" on the page) is how
+much the second XI counts: backups play a real share of the minutes through rotation,
+injuries and suspensions. Planning for the XI alone (`w = 0`) treats everyone off the XI as
+money, so to fund signings it would happily sell young first-choice backups (for Man Utd it
+sold Dalot, Amad, Mainoo, Yoro and Lammens). With the second XI counted, a useful backup is
+worth keeping and the players in *neither* XI are the ones sold; those it doesn't need to
+sell are listed with the money and wages they'd free. Sales are on by default (up to 4).
+
 `r` is the player's position rating (a striker at LW is rated as a LW), optionally plus the
 forecast change. Outside "win now" it is an **expected** rating: with `s` the chance the
 player is still in the game and `b` the squad's backup level at that slot,
@@ -220,14 +229,17 @@ best 16) are left out, since they rarely move down; rumoured or kept players are
 
 The full market is too large to hand to the solver directly (~200k binaries hit the time
 limit), so it is reduced with two rules that provably cannot remove the optimum:
-1. a signing rated below the (11 + max sales)-th best squad option at a slot never needs to
-   start there — one of those squad players is always free to take the slot;
-2. a player beaten on every slot rating, fee and wage by at least *max signings* others in his
-   position group can always be swapped for one of them.
+1. a signing rated below the (L + max sales)-th best squad option at a slot never needs to
+   play there (L = 11 lineup places, 22 with the second XI) — one of those squad players is
+   always free to take his place;
+2. at each slot separately, a player beaten on that slot's rating, fee and wage by at least
+   *max signings* others in his position group is never needed there: in any plan using
+   him at that slot, one of them is unsigned and can take his place (same role, same
+   group, no more money).
 
-This leaves roughly 1–2.5k candidates; a plan takes about a second including the pruning.
-With earlier plans excluded, rule 2 needs *max signings + excluded plans* dominators to stay
-exact. The unit tests check the result against brute-force enumeration on random small
+This leaves roughly 2–3k candidates with only their few useful slots each; a plan takes
+1–5 seconds. With earlier plans excluded, rule 2 needs *max signings + excluded plans*
+dominators to stay exact. The unit tests check the result against brute-force enumeration on random small
 instances: with and without sales, and with expected ratings, objective bonuses, kept and
 removed players, and excluded plans.
 

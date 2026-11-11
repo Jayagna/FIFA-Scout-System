@@ -158,6 +158,7 @@ async def squad(request: Request):
             max_signings=int(body.get("max_signings", 3)), max_age=body.get("max_age"),
             objective=body.get("objective", "balanced"), allow_sales=bool(body.get("allow_sales")),
             max_sales=int(body.get("max_sales", 3)), markup=float(body.get("markup", 1.2)),
+            bench_weight=float(body.get("bench_weight", service.BENCH_WEIGHT)),
             market_leagues=body.get("market_leagues") or None,
             realistic=bool(body.get("realistic", True)), alternatives=int(body.get("alternatives", 2)),
             seed=body.get("seed"), ban_ids=[int(i) for i in body.get("ban_ids") or []],
