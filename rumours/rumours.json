@@ -1,11 +1,11 @@
 {
- "generated": "2026-11-11T08:33:53+00:00",
+ "generated": "2026-11-11T09:19:59+00:00",
  "window_days": 70,
  "edition": 26,
  "sources": [
   "GDELT"
  ],
- "headlines_scanned": 168,
+ "headlines_scanned": 321,
  "links": [
   {
    "player_id": 261299,
@@ -165,7 +165,7 @@
    "to_club": "Arsenal",
    "from_club": "Atlético Madrid",
    "stage": 1,
-   "score": 0.359,
+   "score": 0.358,
    "n_articles": 6,
    "articles": [
     {
@@ -306,6 +306,47 @@
    ]
   },
   {
+   "player_id": 264652,
+   "player": "B. Barcola",
+   "to_club": "Liverpool",
+   "from_club": "Paris Saint-Germain",
+   "stage": 1,
+   "score": 0.306,
+   "n_articles": 6,
+   "articles": [
+    {
+     "title": "Liverpool dealt Bradley Barcola issue vs Man City and face £52m transfer setback",
+     "url": "https://www.aol.co.uk/articles/liverpool-dealt-bradley-barcola-issue-043000000.html",
+     "source": "aol.co.uk",
+     "date": "2026-10-01"
+    },
+    {
+     "title": "Liverpool news : Two Andoni Iraola transfer reunions proposed as Bradley Barcola sent message",
+     "url": "https://www.aol.co.uk/articles/liverpool-news-two-andoni-iraola-040000000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-22"
+    },
+    {
+     "title": "Liverpool news : Bradley Barcola issue called out as transfer chief breaks silence on star",
+     "url": "https://www.aol.co.uk/articles/liverpool-news-bradley-barcola-issue-040000000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-11"
+    },
+    {
+     "title": "Andoni Iraola issues Bradley Barcola verdict as £123m signing makes Liverpool debut",
+     "url": "https://www.aol.co.uk/articles/andoni-iraola-issues-bradley-barcola-215849000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-04"
+    },
+    {
+     "title": "Bradley Barcola transfer to Liverpool explained by Luis Enrique",
+     "url": "https://www.caughtoffside.com/2026/09/04/bradley-barcola-transfer-to-liverpool-explained-by-luis-enrique/",
+     "source": "caughtoffside.com",
+     "date": "2026-09-04"
+    }
+   ]
+  },
+  {
    "player_id": 246863,
    "player": "F. Nmecha",
    "to_club": "Liverpool",
@@ -331,6 +372,47 @@
      "url": "https://www.caughtoffside.com/2026/10/17/liverpool-considering-felix-nmecha-transfer-from-dortmund/",
      "source": "caughtoffside.com",
      "date": "2026-10-17"
+    }
+   ]
+  },
+  {
+   "player_id": 247463,
+   "player": "F. Balogun",
+   "to_club": "Everton",
+   "from_club": "AS Monaco",
+   "stage": 2,
+   "score": 0.249,
+   "n_articles": 5,
+   "articles": [
+    {
+     "title": "Everton : Anthony Martial offered to Toffees after Folarin Balogun nightmare",
+     "url": "https://www.teamtalk.com/everton/anthony-martial-transfer-news-everton-offered-ex-man-utd-balogun-nightmare-exclusive",
+     "source": "teamtalk.com",
+     "date": "2026-09-02"
+    },
+    {
+     "title": "Folarin Balogun scraps transfer to Everton : reports",
+     "url": "https://www.geosuper.tv/latest/59262-folarin-balogun-scraps-transfer-to-everton-reports",
+     "source": "geosuper.tv",
+     "date": "2026-09-02"
+    },
+    {
+     "title": "Folarin Balogun  cancelled Everton transfer  as Monaco chief reveals extraordinary accusation",
+     "url": "https://www.aol.co.uk/articles/folarin-balogun-cancelled-everton-transfer-131548000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-02"
+    },
+    {
+     "title": "Football : Folarin Balogun reportedly scraps transfer to Everton",
+     "url": "https://www.gdnonline.com:443/Details/1405137/Folarin-Balogun-reportedly-scraps-transfer-to-Everton",
+     "source": "gdnonline.com",
+     "date": "2026-09-02"
+    },
+    {
+     "title": "Folarin Balogun reportedly scraps transfer to Everton",
+     "url": "http://www.brazilsun.com/news/279280985/folarin-balogun-reportedly-scraps-transfer-to-everton",
+     "source": "brazilsun.com",
+     "date": "2026-09-02"
     }
    ]
   },
@@ -410,12 +492,64 @@
    ]
   },
   {
+   "player_id": 275029,
+   "player": "I. Maza",
+   "to_club": "Arsenal",
+   "from_club": "Bayer 04 Leverkusen",
+   "stage": 1,
+   "score": 0.225,
+   "n_articles": 3,
+   "articles": [
+    {
+     "title": "PSG rival Arsenal in Ibrahim Maza race as Khvicha Kvaratskhelia replacement sought",
+     "url": "https://thehardtackle.com/transfer-news/2026/10/22/psg-rival-arsenal-in-ibrahim-maza-race-as-khvicha-kvaratskhelia-replacement-sought/",
+     "source": "thehardtackle.com",
+     "date": "2026-10-22"
+    },
+    {
+     "title": "Arsenal and Tottenham keen on Ibrahim Maza",
+     "url": "https://www.caughtoffside.com/2026/09/27/arsenal-and-tottenham-join-premier-league-race-for-20-year-old-rising-star/",
+     "source": "caughtoffside.com",
+     "date": "2026-09-27"
+    },
+    {
+     "title": "Atletico Madrid rival Arsenal , Manchester City , Manchester United in Ibrahim Maza chase",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/22/atletico-madrid-rival-arsenal-manchester-city-manchester-united-in-ibrahim-maza-chase/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-22"
+    }
+   ]
+  },
+  {
+   "player_id": 72337,
+   "player": "Gustavo Varela",
+   "to_club": "Arsenal",
+   "from_club": "Gil Vicente FC",
+   "stage": 1,
+   "score": 0.221,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Arsenal need to pay £33 - 42m to sign Monza striker Gustavo Varela in January",
+     "url": "https://arsenalnews.co.uk/2026/11/05/arsenal-need-to-pay-33-42m-to-sign-monza-striker-gustavo-varela-in-january/",
+     "source": "arsenalnews.co.uk",
+     "date": "2026-11-06"
+    },
+    {
+     "title": "Arsenal are closely monitoring Monza striker Gustavo Varela",
+     "url": "https://www.caughtoffside.com/2026/10/23/arsenal-monitor-attacking-sensation-making-waves-this-season/",
+     "source": "caughtoffside.com",
+     "date": "2026-10-23"
+    }
+   ]
+  },
+  {
    "player_id": 202126,
    "player": "H. Kane",
    "to_club": "Tottenham Hotspur",
    "from_club": "FC Bayern München",
    "stage": 3,
-   "score": 0.202,
+   "score": 0.201,
    "n_articles": 2,
    "articles": [
     {
@@ -467,6 +601,29 @@
    ]
   },
   {
+   "player_id": 266895,
+   "player": "N. Tresoldi",
+   "to_club": "Arsenal",
+   "from_club": "Club Brugge KV",
+   "stage": 1,
+   "score": 0.197,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Arsenal , Barcelona told to pay €80 million to sign Nicolo Tresoldi",
+     "url": "https://thehardtackle.com/transfer-news/2026/10/22/arsenal-barcelona-told-to-pay-e80-million-to-sign-nicolo-tresoldi/",
+     "source": "thehardtackle.com",
+     "date": "2026-10-22"
+    },
+    {
+     "title": "Arsenal consider Nicolo Tresoldi transfer from Club Brugge",
+     "url": "https://www.caughtoffside.com/2026/10/21/arsenal-consider-nicolo-tresoldi-transfer-from-club-brugge/",
+     "source": "caughtoffside.com",
+     "date": "2026-10-21"
+    }
+   ]
+  },
+  {
    "player_id": 253163,
    "player": "R. Araujo",
    "to_club": "Liverpool",
@@ -485,6 +642,29 @@
      "title": "Ronald Araujo coy over chances of permanent Liverpool transfer",
      "url": "https://www.empireofthekop.com/2026/10/19/araujo-keeps-liverpool-fans-guessing-over-permanent-transfer/",
      "source": "empireofthekop.com",
+     "date": "2026-10-19"
+    }
+   ]
+  },
+  {
+   "player_id": 247635,
+   "player": "K. Kvaratskhelia",
+   "to_club": "Arsenal",
+   "from_club": "Paris Saint-Germain",
+   "stage": 1,
+   "score": 0.194,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "PSG rival Arsenal in Ibrahim Maza race as Khvicha Kvaratskhelia replacement sought",
+     "url": "https://thehardtackle.com/transfer-news/2026/10/22/psg-rival-arsenal-in-ibrahim-maza-race-as-khvicha-kvaratskhelia-replacement-sought/",
+     "source": "thehardtackle.com",
+     "date": "2026-10-22"
+    },
+    {
+     "title": "Arsenal told chances of signing PSG superstar Khvicha Kvaratskhelia amid two vital factors for transfer",
+     "url": "https://www.teamtalk.com/arsenal/gunners-told-chances-signing-psg-superstar-khvicha-kvaratskhelia-two-vital-factors",
+     "source": "teamtalk.com",
      "date": "2026-10-19"
     }
    ]
@@ -664,6 +844,58 @@
      "url": "https://thehardtackle.com/transfer-news/2026/10/25/newcastle-united-tottenham-make-approach-for-fikayo-tomori-ruben-loftus-cheek-moves/",
      "source": "thehardtackle.com",
      "date": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "player_id": 231747,
+   "player": "K. Mbappé",
+   "to_club": "Liverpool",
+   "from_club": "Real Madrid",
+   "stage": 2,
+   "score": 0.166,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Kylian Mbappe on Liverpool transfer talks",
+     "url": "https://www.caughtoffside.com/2026/09/22/kylian-mbappe-on-liverpool-transfer-talks/",
+     "source": "caughtoffside.com",
+     "date": "2026-09-22"
+    },
+    {
+     "title": "Liverpool news : Kylian Mbappe makes transfer admission as Andoni Iraola striker plan emerges",
+     "url": "https://www.aol.co.uk/articles/liverpool-news-kylian-mbappe-makes-040000000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-23"
+    }
+   ]
+  },
+  {
+   "player_id": 275138,
+   "player": "L. Camara",
+   "to_club": "Liverpool",
+   "from_club": "AS Monaco",
+   "stage": 1,
+   "score": 0.163,
+   "n_articles": 3,
+   "articles": [
+    {
+     "title": "Liverpool ahead of Chelsea , Arsenal in Lamine Camara chase",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/20/liverpool-moving-ahead-of-chelsea-arsenal-in-lamine-camara-chase/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-20"
+    },
+    {
+     "title": "Arsenal , Chelsea , Liverpool , Man City scout Lamine Camara",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/07/arsenal-chelsea-liverpool-manchester-city-run-rule-over-lamine-camara/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-07"
+    },
+    {
+     "title": "Liverpool scouts watched Lamine Camara in Monaco win at PSG",
+     "url": "https://www.empireofthekop.com/2026/09/06/liverpool-scouts-watched-47m-powerhouse-masterclass-monaco/",
+     "source": "empireofthekop.com",
+     "date": "2026-09-06"
     }
    ]
   },
@@ -856,6 +1088,29 @@
    ]
   },
   {
+   "player_id": 271800,
+   "player": "Y. Minteh",
+   "to_club": "Liverpool",
+   "from_club": "Brighton & Hove Albion",
+   "stage": 1,
+   "score": 0.143,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Liverpool could revive Yankuba Minteh transfer in January",
+     "url": "https://www.caughtoffside.com/2026/10/16/liverpool-handed-renewed-hope-of-signing-80m-star-after-injury-comeback/",
+     "source": "caughtoffside.com",
+     "date": "2026-10-16"
+    },
+    {
+     "title": "Liverpool poised to revive move for Yankuba Minteh in January",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/06/liverpool-poised-to-revive-move-for-yankuba-minteh-in-january/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-06"
+    }
+   ]
+  },
+  {
    "player_id": 203376,
    "player": "V. van Dijk",
    "to_club": "AC Milan",
@@ -913,29 +1168,6 @@
    ]
   },
   {
-   "player_id": 275029,
-   "player": "I. Maza",
-   "to_club": "Arsenal",
-   "from_club": "Bayer 04 Leverkusen",
-   "stage": 1,
-   "score": 0.134,
-   "n_articles": 2,
-   "articles": [
-    {
-     "title": "Arsenal and Tottenham keen on Ibrahim Maza",
-     "url": "https://www.caughtoffside.com/2026/09/27/arsenal-and-tottenham-join-premier-league-race-for-20-year-old-rising-star/",
-     "source": "caughtoffside.com",
-     "date": "2026-09-27"
-    },
-    {
-     "title": "Atletico Madrid rival Arsenal , Manchester City , Manchester United in Ibrahim Maza chase",
-     "url": "https://thehardtackle.com/transfer-news/2026/09/22/atletico-madrid-rival-arsenal-manchester-city-manchester-united-in-ibrahim-maza-chase/",
-     "source": "thehardtackle.com",
-     "date": "2026-09-22"
-    }
-   ]
-  },
-  {
    "player_id": 197445,
    "player": "D. Alaba",
    "to_club": "Udinese",
@@ -949,6 +1181,23 @@
      "url": "https://www.moroccoworldnews.com/2026/09/339542/david-alaba-reaches-verbal-agreement-to-join-udinese-as-free-agent/",
      "source": "moroccoworldnews.com",
      "date": "2026-09-24"
+    }
+   ]
+  },
+  {
+   "player_id": 255981,
+   "player": "Z. Suzuki",
+   "to_club": "Liverpool",
+   "from_club": "Parma",
+   "stage": 1,
+   "score": 0.133,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Liverpool are keeping tabs on Aston Villa goalkeeper Zion Suzuki",
+     "url": "https://www.caughtoffside.com/2026/11/08/liverpool-premier-league-rival-player-alisson-replacement/",
+     "source": "caughtoffside.com",
+     "date": "2026-11-08"
     }
    ]
   },
@@ -999,6 +1248,57 @@
    ]
   },
   {
+   "player_id": 76624,
+   "player": "Vitor Reis",
+   "to_club": "FC Barcelona",
+   "from_club": "Girona FC",
+   "stage": 1,
+   "score": 0.132,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Barcelona considering January move for Vitor Reis",
+     "url": "https://thehardtackle.com/transfer-news/2026/11/07/barcelona-considering-january-move-for-vitor-reis/",
+     "source": "thehardtackle.com",
+     "date": "2026-11-07"
+    }
+   ]
+  },
+  {
+   "player_id": 237477,
+   "player": "M. Tavernier",
+   "to_club": "Arsenal",
+   "from_club": "AFC Bournemouth",
+   "stage": 1,
+   "score": 0.13,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Arsenal , Manchester United keen on signing Marcus Tavernier",
+     "url": "https://thehardtackle.com/transfer-news/2026/11/06/arsenal-manchester-united-keen-on-signing-marcus-tavernier/",
+     "source": "thehardtackle.com",
+     "date": "2026-11-06"
+    }
+   ]
+  },
+  {
+   "player_id": 237477,
+   "player": "M. Tavernier",
+   "to_club": "Manchester United",
+   "from_club": "AFC Bournemouth",
+   "stage": 1,
+   "score": 0.13,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Arsenal , Manchester United keen on signing Marcus Tavernier",
+     "url": "https://thehardtackle.com/transfer-news/2026/11/06/arsenal-manchester-united-keen-on-signing-marcus-tavernier/",
+     "source": "thehardtackle.com",
+     "date": "2026-11-06"
+    }
+   ]
+  },
+  {
    "player_id": 270821,
    "player": "M. Penders",
    "to_club": "Real Madrid",
@@ -1011,23 +1311,6 @@
      "title": "Real Madrid considering Mike Penders as Thibaut Courtois replacement",
      "url": "https://thehardtackle.com/transfer-news/2026/11/06/real-madrid-considering-mike-penders-as-thibaut-courtois-replacement/",
      "source": "thehardtackle.com",
-     "date": "2026-11-06"
-    }
-   ]
-  },
-  {
-   "player_id": 72337,
-   "player": "Gustavo Varela",
-   "to_club": "Arsenal",
-   "from_club": "Gil Vicente FC",
-   "stage": 1,
-   "score": 0.129,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Arsenal need to pay £33 - 42m to sign Monza striker Gustavo Varela in January",
-     "url": "https://arsenalnews.co.uk/2026/11/05/arsenal-need-to-pay-33-42m-to-sign-monza-striker-gustavo-varela-in-january/",
-     "source": "arsenalnews.co.uk",
      "date": "2026-11-06"
     }
    ]
@@ -1175,29 +1458,6 @@
    ]
   },
   {
-   "player_id": 264652,
-   "player": "B. Barcola",
-   "to_club": "Liverpool",
-   "from_club": "Paris Saint-Germain",
-   "stage": 1,
-   "score": 0.12,
-   "n_articles": 2,
-   "articles": [
-    {
-     "title": "Liverpool news : Two Andoni Iraola transfer reunions proposed as Bradley Barcola sent message",
-     "url": "https://www.aol.co.uk/articles/liverpool-news-two-andoni-iraola-040000000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-22"
-    },
-    {
-     "title": "Liverpool news : Bradley Barcola issue called out as transfer chief breaks silence on star",
-     "url": "https://www.aol.co.uk/articles/liverpool-news-bradley-barcola-issue-040000000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-11"
-    }
-   ]
-  },
-  {
    "player_id": 273651,
    "player": "J. Quansah",
    "to_club": "Arsenal",
@@ -1211,6 +1471,52 @@
      "url": "https://arsenalnews.co.uk/2026/09/30/arsenal-offered-56m-to-sign-bayer-leverkusen-defender-jarell-quansah/",
      "source": "arsenalnews.co.uk",
      "date": "2026-10-01"
+    }
+   ]
+  },
+  {
+   "player_id": 275138,
+   "player": "L. Camara",
+   "to_club": "Chelsea",
+   "from_club": "AS Monaco",
+   "stage": 1,
+   "score": 0.118,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Liverpool ahead of Chelsea , Arsenal in Lamine Camara chase",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/20/liverpool-moving-ahead-of-chelsea-arsenal-in-lamine-camara-chase/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-20"
+    },
+    {
+     "title": "Lamine Camara drops Chelsea transfer hint after deadline day heartbreak",
+     "url": "https://www.aol.co.uk/articles/lamine-camara-drops-chelsea-transfer-190019000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-11"
+    }
+   ]
+  },
+  {
+   "player_id": 275138,
+   "player": "L. Camara",
+   "to_club": "Arsenal",
+   "from_club": "AS Monaco",
+   "stage": 1,
+   "score": 0.116,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Liverpool ahead of Chelsea , Arsenal in Lamine Camara chase",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/20/liverpool-moving-ahead-of-chelsea-arsenal-in-lamine-camara-chase/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-20"
+    },
+    {
+     "title": "Arsenal , Chelsea , Liverpool , Man City scout Lamine Camara",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/07/arsenal-chelsea-liverpool-manchester-city-run-rule-over-lamine-camara/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-07"
     }
    ]
   },
@@ -1289,6 +1595,57 @@
    ]
   },
   {
+   "player_id": 268534,
+   "player": "A. Diouf",
+   "to_club": "Arsenal",
+   "from_club": "Inter",
+   "stage": 1,
+   "score": 0.107,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Arsenal keen on signing Inter Milan star Andy Diouf",
+     "url": "https://www.caughtoffside.com/2026/10/23/arsenal-compete-with-chelsea-and-barcelona-for-e60m-rated-midfield-target/",
+     "source": "caughtoffside.com",
+     "date": "2026-10-23"
+    }
+   ]
+  },
+  {
+   "player_id": 275029,
+   "player": "I. Maza",
+   "to_club": "Paris Saint-Germain",
+   "from_club": "Bayer 04 Leverkusen",
+   "stage": 1,
+   "score": 0.105,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "PSG rival Arsenal in Ibrahim Maza race as Khvicha Kvaratskhelia replacement sought",
+     "url": "https://thehardtackle.com/transfer-news/2026/10/22/psg-rival-arsenal-in-ibrahim-maza-race-as-khvicha-kvaratskhelia-replacement-sought/",
+     "source": "thehardtackle.com",
+     "date": "2026-10-22"
+    }
+   ]
+  },
+  {
+   "player_id": 266895,
+   "player": "N. Tresoldi",
+   "to_club": "FC Barcelona",
+   "from_club": "Club Brugge KV",
+   "stage": 1,
+   "score": 0.105,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Arsenal , Barcelona told to pay €80 million to sign Nicolo Tresoldi",
+     "url": "https://thehardtackle.com/transfer-news/2026/10/22/arsenal-barcelona-told-to-pay-e80-million-to-sign-nicolo-tresoldi/",
+     "source": "thehardtackle.com",
+     "date": "2026-10-22"
+    }
+   ]
+  },
+  {
    "player_id": 203376,
    "player": "V. van Dijk",
    "to_club": "Trabzonspor",
@@ -1336,6 +1693,40 @@
      "url": "https://www.toffeeweb.com/season/26-27/rumour-mill/ferguson-urges-everton-to-100-re-sign-richarlison/",
      "source": "toffeeweb.com",
      "date": "2026-10-22"
+    }
+   ]
+  },
+  {
+   "player_id": 256612,
+   "player": "Evanilson",
+   "to_club": "Arsenal",
+   "from_club": "AFC Bournemouth",
+   "stage": 1,
+   "score": 0.104,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Arsenal and Manchester United keen on signing Evanilson",
+     "url": "https://www.caughtoffside.com/2026/10/21/arsenal-and-man-united-make-initial-enquiries-for-e65m-rated-premier-league-striker/",
+     "source": "caughtoffside.com",
+     "date": "2026-10-21"
+    }
+   ]
+  },
+  {
+   "player_id": 256612,
+   "player": "Evanilson",
+   "to_club": "Manchester United",
+   "from_club": "AFC Bournemouth",
+   "stage": 1,
+   "score": 0.104,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Arsenal and Manchester United keen on signing Evanilson",
+     "url": "https://www.caughtoffside.com/2026/10/21/arsenal-and-man-united-make-initial-enquiries-for-e65m-rated-premier-league-striker/",
+     "source": "caughtoffside.com",
+     "date": "2026-10-21"
     }
    ]
   },
@@ -1561,29 +1952,12 @@
    ]
   },
   {
-   "player_id": 247635,
-   "player": "K. Kvaratskhelia",
-   "to_club": "Arsenal",
-   "from_club": "Paris Saint-Germain",
-   "stage": 1,
-   "score": 0.099,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Arsenal told chances of signing PSG superstar Khvicha Kvaratskhelia amid two vital factors for transfer",
-     "url": "https://www.teamtalk.com/arsenal/gunners-told-chances-signing-psg-superstar-khvicha-kvaratskhelia-two-vital-factors",
-     "source": "teamtalk.com",
-     "date": "2026-10-19"
-    }
-   ]
-  },
-  {
    "player_id": 71418,
    "player": "B. Touré",
    "to_club": "Aston Villa",
    "from_club": "TSG 1899 Hoffenheim",
    "stage": 1,
-   "score": 0.097,
+   "score": 0.096,
    "n_articles": 1,
    "articles": [
     {
@@ -1600,7 +1974,7 @@
    "to_club": "Real Madrid",
    "from_club": "Napoli",
    "stage": 1,
-   "score": 0.097,
+   "score": 0.096,
    "n_articles": 1,
    "articles": [
     {
@@ -1617,7 +1991,7 @@
    "to_club": "Arsenal",
    "from_club": "Napoli",
    "stage": 1,
-   "score": 0.097,
+   "score": 0.096,
    "n_articles": 1,
    "articles": [
     {
@@ -1634,7 +2008,7 @@
    "to_club": "Arsenal",
    "from_club": "FC Bayern München",
    "stage": 1,
-   "score": 0.097,
+   "score": 0.096,
    "n_articles": 1,
    "articles": [
     {
@@ -1651,7 +2025,7 @@
    "to_club": "Arsenal",
    "from_club": "Real Madrid",
    "stage": 1,
-   "score": 0.097,
+   "score": 0.096,
    "n_articles": 1,
    "articles": [
     {
@@ -1668,7 +2042,7 @@
    "to_club": "Tottenham Hotspur",
    "from_club": "Manchester United",
    "stage": 1,
-   "score": 0.097,
+   "score": 0.096,
    "n_articles": 1,
    "articles": [
     {
@@ -1685,7 +2059,7 @@
    "to_club": "Manchester United",
    "from_club": "AC Milan",
    "stage": 1,
-   "score": 0.097,
+   "score": 0.096,
    "n_articles": 1,
    "articles": [
     {
@@ -1693,23 +2067,6 @@
      "url": "https://www.teamtalk.com/manchester-united/youssouf-fofana-man-utd-sevilla-ac-milan-2927-january-transfer-decision-reached",
      "source": "teamtalk.com",
      "date": "2026-10-17"
-    }
-   ]
-  },
-  {
-   "player_id": 271800,
-   "player": "Y. Minteh",
-   "to_club": "Liverpool",
-   "from_club": "Brighton & Hove Albion",
-   "stage": 1,
-   "score": 0.095,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Liverpool could revive Yankuba Minteh transfer in January",
-     "url": "https://www.caughtoffside.com/2026/10/16/liverpool-handed-renewed-hope-of-signing-80m-star-after-injury-comeback/",
-     "source": "caughtoffside.com",
-     "date": "2026-10-16"
     }
    ]
   },
@@ -1782,27 +2139,27 @@
    ]
   },
   {
-   "player_id": 211300,
-   "player": "A. Martial",
-   "to_club": "Everton",
-   "from_club": "AEK Athens",
+   "player_id": 235212,
+   "player": "A. Hakimi",
+   "to_club": "Al Hilal",
+   "from_club": "Paris Saint-Germain",
    "stage": 2,
-   "score": 0.078,
+   "score": 0.085,
    "n_articles": 1,
    "articles": [
     {
-     "title": "Everton : Anthony Martial offered to Toffees after Folarin Balogun nightmare",
-     "url": "https://www.teamtalk.com/everton/anthony-martial-transfer-news-everton-offered-ex-man-utd-balogun-nightmare-exclusive",
-     "source": "teamtalk.com",
-     "date": "2026-09-02"
+     "title": "Al Hilal Submit €120M Bid to PSG for Achraf Hakimi",
+     "url": "https://www.moroccoworldnews.com/2026/09/337499/al-hilal-submit-e120m-bid-to-psg-for-achraf-hakimi/",
+     "source": "moroccoworldnews.com",
+     "date": "2026-09-07"
     }
    ]
   },
   {
-   "player_id": 247463,
-   "player": "F. Balogun",
+   "player_id": 211300,
+   "player": "A. Martial",
    "to_club": "Everton",
-   "from_club": "AS Monaco",
+   "from_club": "AEK Athens",
    "stage": 2,
    "score": 0.078,
    "n_articles": 1,
@@ -2190,6 +2547,23 @@
    ]
   },
   {
+   "player_id": 239837,
+   "player": "A. Mac Allister",
+   "to_club": "Paris Saint-Germain",
+   "from_club": "Liverpool",
+   "stage": 1,
+   "score": 0.068,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "PSG stepping up interest in Alexis Mac Allister",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/23/psg-stepping-up-interest-in-alexis-mac-allister/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-23"
+    }
+   ]
+  },
+  {
    "player_id": 275029,
    "player": "I. Maza",
    "to_club": "Atlético Madrid",
@@ -2428,18 +2802,18 @@
    ]
   },
   {
-   "player_id": 275138,
-   "player": "L. Camara",
-   "to_club": "Chelsea",
-   "from_club": "AS Monaco",
+   "player_id": 252145,
+   "player": "Nuno Mendes",
+   "to_club": "Liverpool",
+   "from_club": "Paris Saint-Germain",
    "stage": 1,
    "score": 0.057,
    "n_articles": 1,
    "articles": [
     {
-     "title": "Lamine Camara drops Chelsea transfer hint after deadline day heartbreak",
-     "url": "https://www.aol.co.uk/articles/lamine-camara-drops-chelsea-transfer-190019000.html",
-     "source": "aol.co.uk",
+     "title": "Liverpool had chance of Nuno Mendes transfer",
+     "url": "https://www.caughtoffside.com/2026/09/11/liverpool-had-chance-of-nuno-mendes-transfer/",
+     "source": "caughtoffside.com",
      "date": "2026-09-11"
     }
    ]
@@ -2491,6 +2865,40 @@
      "title": "Thomas Meunier admits Manchester United transfer desire",
      "url": "https://www.caughtoffside.com/2026/09/10/premier-league-summer-signing-admits-he-would-have-joined-manchester-united/",
      "source": "caughtoffside.com",
+     "date": "2026-09-10"
+    }
+   ]
+  },
+  {
+   "player_id": 226271,
+   "player": "Fabián Ruiz",
+   "to_club": "FC Barcelona",
+   "from_club": "Paris Saint-Germain",
+   "stage": 1,
+   "score": 0.056,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Barcelona eyeing summer move for Fabian Ruiz , face Chelsea threat in January",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/10/barcelona-eyeing-summer-move-for-fabian-ruiz-face-chelsea-threat-in-january/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-10"
+    }
+   ]
+  },
+  {
+   "player_id": 226271,
+   "player": "Fabián Ruiz",
+   "to_club": "Chelsea",
+   "from_club": "Paris Saint-Germain",
+   "stage": 1,
+   "score": 0.056,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Barcelona eyeing summer move for Fabian Ruiz , face Chelsea threat in January",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/10/barcelona-eyeing-summer-move-for-fabian-ruiz-face-chelsea-threat-in-january/",
+     "source": "thehardtackle.com",
      "date": "2026-09-10"
     }
    ]
@@ -2649,6 +3057,23 @@
    ]
   },
   {
+   "player_id": 275138,
+   "player": "L. Camara",
+   "to_club": "Paris Saint-Germain",
+   "from_club": "AS Monaco",
+   "stage": 1,
+   "score": 0.053,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Liverpool scouts watched Lamine Camara in Monaco win at PSG",
+     "url": "https://www.empireofthekop.com/2026/09/06/liverpool-scouts-watched-47m-powerhouse-masterclass-monaco/",
+     "source": "empireofthekop.com",
+     "date": "2026-09-06"
+    }
+   ]
+  },
+  {
    "player_id": 261188,
    "player": "I. Ndiaye",
    "to_club": "Arsenal",
@@ -2768,6 +3193,6 @@
    ]
   }
  ],
- "clubs_searched": 13,
+ "clubs_searched": 15,
  "clubs_total": 80
 }
