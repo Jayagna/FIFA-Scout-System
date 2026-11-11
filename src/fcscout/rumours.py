@@ -8,7 +8,8 @@ the outlet is, how far along the deal sounds, and how recent the headline is.
 
 Matching favours precision over recall: full names ("Lewis Hall") always count,
 a surname on its own ("Hall") only for well-known players whose surname no other
-player in the database shares.
+player in the database shares, and a one-word name only when the words beside it
+aren't another name ("JJ Gabriel" is not Arsenal's Gabriel).
 """
 from __future__ import annotations
 
@@ -104,10 +105,42 @@ CLUB_ALIASES = {
 _STRIP = re.compile(r"\b(fc|afc|cf|sc|ac|sk|jk|cd|ud|sv|club|calcio)\b")
 
 
+def _ascii(text: str) -> str:
+    """ASCII with possessives dropped ("Arsenal's" -> "Arsenal"), case kept."""
+    t = str(text).replace("\u2019", "'").replace("\u2018", "'")
+    t = unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode()
+    return re.sub(r"'[sS]\b", "", t)
+
+
 def fold(text: str) -> str:
-    t = unicodedata.normalize("NFKD", str(text)).encode("ascii", "ignore").decode().lower()
-    t = t.replace("'s", "").replace("’s", "")
-    return " " + re.sub(r"[^a-z0-9]+", " ", t).strip() + " "
+    return " " + re.sub(r"[^a-z0-9]+", " ", _ascii(text).lower()).strip() + " "
+
+
+def _case_tokens(text: str) -> list[str]:
+    """The words of fold(text), one for one, with their original capitalisation."""
+    return [w for w in re.split(r"[^A-Za-z0-9]+", _ascii(text)) if w]
+
+
+# words that can sit right next to a one-word name without being part of someone
+# else's name, even when a headline capitalises every word
+_NEXT_TO_NAME = set("""a an the and or but of for on to in at by as with from into over after amid than
+    about vs v star ace defender midfielder forward striker winger keeper goalkeeper fullback full back
+    captain youngster wonderkid talent report reports exclusive official update latest news transfer
+    transfers rumour rumours gossip deal done watch video breaking confirmed plan plans""".split())
+_STAGE_STEMS = tuple(w for ws in STAGE_WORDS.values() for w in ws if " " not in w)
+
+
+def _part_of_longer_name(tokens: list[str], i: int, club_words: set) -> bool:
+    """A one-word alias ("Gabriel", "Haaland") whose neighbour is another capitalised
+    word ("JJ Gabriel", "Gabriel Paulista") most likely names someone else."""
+    for j in (i - 1, i + 1):
+        if 0 <= j < len(tokens):
+            w = tokens[j]
+            low = w.lower()
+            if (w[:1].isupper() and low not in club_words and low not in _NEXT_TO_NAME
+                    and not low.startswith(_STAGE_STEMS)):
+                return True
+    return False
 
 
 def _phrase(t: str) -> str:
@@ -120,6 +153,7 @@ class Matchers:
     clubs: dict = field(default_factory=dict)     # alias -> club name
     club_of: dict = field(default_factory=dict)   # player id -> club
     name_of: dict = field(default_factory=dict)
+    club_words: set = field(default_factory=set)  # every word of every club alias
 
     @classmethod
     def build(cls, cur: pd.DataFrame, min_overall: int = 68, surname_min_overall: int = 78) -> "Matchers":
@@ -163,7 +197,8 @@ class Matchers:
         players = {a: p for a, p in players.items() if a not in clubs}
         return cls(players=players, clubs=clubs,
                    club_of=dict(zip(cur["id"].astype(int), cur["club"])),
-                   name_of=dict(zip(cur["id"].astype(int), cur["name"])))
+                   name_of=dict(zip(cur["id"].astype(int), cur["name"])),
+                   club_words={w for a in clubs for w in a.split()})
 
 
 def _find(text: str, aliases: dict) -> list[tuple[int, str, object]]:
@@ -195,7 +230,10 @@ def parse_headline(title: str, m: Matchers) -> list[dict]:
     stage = stage_of(text)
     if stage == 0:
         return []
-    players = _find(text, m.players)
+    tokens = _case_tokens(title)
+    players = [(pos, alias, pid) for pos, alias, pid in _find(text, m.players)
+               if " " in alias or len(tokens) != len(text.split())
+               or not _part_of_longer_name(tokens, len(text[:pos + 1].split()), m.club_words)]
     clubs = _find(text, m.clubs)
     if not players or not clubs:
         return []

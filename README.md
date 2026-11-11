@@ -235,12 +235,17 @@ removed players, and excluded plans.
 Every two months (`.github/workflows/rumours.yml`, 1st of Jan/Mar/May/Jul/Sep/Nov) a GitHub
 Action searches two free sources that allow automated access and can be searched over a
 date range, so nothing in between is missed:
-* the **GDELT** news index (one search per club, for the 80 strongest clubs, last 70 days);
-* **The Guardian's** football transfer-window articles over the same window.
+* the **GDELT** news index (one search per club, for the 80 strongest clubs, last 70 days;
+  GDELT returns at most 250 articles a search, so when a big club's search comes back full a
+  second one covers the older weeks; "slow down" answers are waited out and retried);
+* **The Guardian's** football transfer-window articles over the same window, when a free API
+  key is saved as the repository secret `GUARDIAN_API_KEY` (get one at
+  open-platform.theguardian.com/access; the old public test key no longer works).
 
 Only headline, link, outlet and date are kept, never article text. Each headline is
 matched to players in the newest edition (full names always; a surname alone only for
-well-known players nobody else in the database shares) and to clubs (database names plus
+well-known players nobody else in the database shares; a one-word name only when the words
+beside it aren't another name, so "JJ Gabriel" isn't Arsenal's Gabriel) and to clubs (database names plus
 nicknames such as "Man Utd" and "Spurs"). The player's own club is the seller; other clubs
 named are suitors, unless the headline says *from* them. Denials ("reject", "rule out"),
 outgoing news ("open to selling") and contract news are skipped. Each player–club link is
@@ -314,8 +319,8 @@ python scripts/run_all.py --quick     # download, build, train, evaluate (a few 
 python server.py                      # http://localhost:8000
 ```
 `python scripts/run_all.py` also runs the optimizer backtests (about an hour).
-`python scripts/fetch_rumours.py` refreshes the rumour feed by hand (a few minutes; set
-`GUARDIAN_API_KEY` for the Guardian's full rate limit, otherwise its public test key is used).
+`python scripts/fetch_rumours.py` refreshes the rumour feed by hand (15–20 minutes, mostly
+waiting between GDELT searches; set `GUARDIAN_API_KEY` to add the Guardian).
 Tests: `python -m pytest -q`.
 
 **Deploy.** `Dockerfile` builds the data and models at image build time and serves on

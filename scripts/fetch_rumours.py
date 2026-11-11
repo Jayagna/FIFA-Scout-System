@@ -3,8 +3,9 @@
 Headlines come from two free sources that allow automated access and can be searched
 over a date range (so a refresh every two months misses nothing):
   * GDELT DOC 2.0 API: worldwide news index, one search per big club, last ~2 months
-  * The Guardian Open Platform: the football transfer-window tag, same window
-    (set GUARDIAN_API_KEY for the full rate limit; the public "test" key works too)
+    (a second search per club when the first hits GDELT's 250-article cap)
+  * The Guardian Open Platform: the football transfer-window tag, same window; needs a
+    free key in GUARDIAN_API_KEY (open-platform.theguardian.com/access), skipped without one
 
 Only headline, link, outlet and date are stored, never article text. Headlines are
 matched to players and clubs in the newest edition of the database
@@ -40,12 +41,23 @@ GDELT = "https://api.gdeltproject.org/api/v2/doc/doc"
 GUARDIAN = "https://content.guardianapis.com/search"
 
 
+class RateLimited(Exception):
+    """The source asked us to slow down (HTTP 429, or GDELT's plain-text notice)."""
+
+
 def http_get(url: str, tries: int = 2) -> bytes:
     for attempt in range(1, tries + 1):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
             with urllib.request.urlopen(req, timeout=30) as r:
                 return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code == 429:
+                raise RateLimited(str(e)) from e
+            if attempt == tries or e.code < 500:
+                raise
+            print(f"    retrying ({e})")
+            time.sleep(10 * attempt)
         except (urllib.error.URLError, TimeoutError) as e:
             if attempt == tries:
                 raise
@@ -71,36 +83,78 @@ def headline_name(club: str) -> str:
 
 
 def parse_gdelt(payload: bytes) -> list[dict]:
+    text = payload.decode("utf-8", errors="replace")
     try:
-        data = json.loads(payload.decode("utf-8", errors="replace") or "{}")
-    except json.JSONDecodeError:          # GDELT answers plain text on bad queries
+        data = json.loads(text or "{}")
+    except json.JSONDecodeError:          # GDELT answers plain text on bad queries...
+        if "limit requests" in text.lower():
+            raise RateLimited(text[:80]) from None   # ...and when asked too often
         return []
     return [{"title": a.get("title", ""), "url": a.get("url", ""), "domain": a.get("domain", ""),
              "source": a.get("domain", ""), "date": a.get("seendate")}
             for a in data.get("articles", []) if a.get("title") and a.get("url")]
 
 
-def fetch_gdelt(clubs: list[str], start: datetime, end: datetime, get=http_get, pause: float = 6.0) -> list[dict]:
-    out, failures = [], 0
+GDELT_CAP = 250
+BACKOFF = (20, 45, 90, 180)        # seconds to wait after each "slow down"
+
+
+def gdelt_url(club: str, start: datetime, end: datetime) -> str:
+    q = f'"{headline_name(club)}" (transfer OR bid OR target OR signing OR "keen on" OR swoop) sourcelang:english'
+    return GDELT + "?" + urllib.parse.urlencode({
+        "query": q, "mode": "artlist", "format": "json", "maxrecords": GDELT_CAP, "sort": "datedesc",
+        "startdatetime": start.strftime("%Y%m%d%H%M%S"), "enddatetime": end.strftime("%Y%m%d%H%M%S")})
+
+
+def _gdelt_time(seen: str | None) -> datetime | None:
+    try:
+        return datetime.strptime(seen or "", "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+
+def fetch_gdelt(clubs: list[str], start: datetime, end: datetime, get=http_get, pause: float = 6.0,
+                backoff=BACKOFF, sleep=time.sleep) -> list[dict]:
+    """One search per club, newest first. GDELT returns at most 250 articles per search,
+    which for a big club covers only the last few weeks, so when a search comes back
+    full a second one covers the older part of the window. A "slow down" answer is
+    waited out and retried; after three clubs in a row fail anyway, the rest are skipped."""
+    out, failed_in_a_row = [], 0
+
+    def one(url: str) -> list[dict] | None:
+        for wait in (*backoff, None):
+            try:
+                return parse_gdelt(get(url))
+            except RateLimited:
+                if wait is None:
+                    return None
+                print(f"    rate limited; waiting {wait}s")
+                sleep(wait)
+            except Exception as e:  # noqa: BLE001 - one failed club must not stop the run
+                print(f"    failed ({e})")
+                return None
+        return None
+
     for i, club in enumerate(clubs):
-        if failures >= 3:
-            print("  GDELT failed three times in a row; skipping the remaining clubs")
+        if failed_in_a_row >= 3:
+            print("  GDELT failed for three clubs in a row; skipping the remaining clubs")
             break
-        q = f'"{headline_name(club)}" (transfer OR bid OR target OR signing OR interest) sourcelang:english'
-        url = GDELT + "?" + urllib.parse.urlencode({
-            "query": q, "mode": "artlist", "format": "json", "maxrecords": 250, "sort": "datedesc",
-            "startdatetime": start.strftime("%Y%m%d%H%M%S"), "enddatetime": end.strftime("%Y%m%d%H%M%S")})
-        try:
-            got = parse_gdelt(get(url))
-            failures = 0
-        except Exception as e:  # noqa: BLE001 - one failed club must not stop the run
-            print(f"  GDELT {club}: failed ({e})")
-            got = []
-            failures += 1
+        got = one(gdelt_url(club, start, end))
+        if got is None:
+            failed_in_a_row += 1
+            print(f"  GDELT {club}: failed")
+            continue
+        failed_in_a_row = 0
+        oldest = min((t for t in map(_gdelt_time, (a["date"] for a in got)) if t), default=None)
+        if len(got) >= GDELT_CAP and oldest and oldest - start > timedelta(days=3):
+            if pause:
+                sleep(pause)
+            older = one(gdelt_url(club, start, oldest))
+            got += older or []
         print(f"  GDELT {club}: {len(got)} headlines")
         out += got
         if pause and i < len(clubs) - 1:
-            time.sleep(pause)               # GDELT asks for at most one request every 5 s
+            sleep(pause)               # GDELT asks for at most one request every 5 s
     return out
 
 
@@ -151,11 +205,19 @@ def main(argv=None) -> int:
     clubs = strength.sort_values(ascending=False).head(args.clubs).index.tolist()
     print(f"Searching {len(clubs)} clubs, {start.date()} to {now.date()}")
     articles = fetch_gdelt(clubs, start, now)
-    articles += fetch_guardian(start, os.environ.get("GUARDIAN_API_KEY") or "test")
+    sources = ["GDELT"]
+    key = os.environ.get("GUARDIAN_API_KEY", "").strip()
+    if key:
+        guardian = fetch_guardian(start, key)
+        articles += guardian
+        if guardian:
+            sources.append("The Guardian")
+    else:
+        print("  Guardian: skipped (set GUARDIAN_API_KEY to include it)")
     if not articles:
         print("No headlines fetched (network problem?); keeping the previous rumours file.")
         return 1
-    feed = build(articles, cur, args.days, ["GDELT", "The Guardian"], now)
+    feed = build(articles, cur, args.days, sources, now)
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(json.dumps(feed, indent=1, ensure_ascii=False))
     print(f"{len(feed['links'])} player-club links from {len(articles)} headlines -> {OUT.relative_to(ROOT)}")

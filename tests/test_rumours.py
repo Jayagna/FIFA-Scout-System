@@ -34,6 +34,7 @@ def _db() -> pd.DataFrame:
         (20, "A. Keeper", "Alan Keeper", "Manchester United", 75),
         (21, "B. Back", "Bob Back", "Tottenham Hotspur", 74),
         (22, "C. Chels", "Carl Chels", "Chelsea", 76),
+        (23, "Gabriel", "Gabriel dos Santos Magalhães", "Arsenal", 86),
     ]
     return pd.DataFrame(rows, columns=["id", "name", "long_name", "club", "overall"]).assign(edition=26)
 
@@ -66,6 +67,11 @@ def test_precision_rules():
     assert _links("Lewis Hall stars as Newcastle win") == []    # no transfer wording
     # a club named after "from" is the seller, not a suitor
     assert _links("Man Utd want Conor Gallagher from Chelsea") == [("C. Gallagher", "Manchester United", 1)]
+    # a one-word name next to another name is someone else (a Man Utd youth player here)
+    assert _links("JJ Gabriel: Man Utd sensation reacts to Barcelona offer") == []
+    assert _links("Man United latest stance on JJ Gabriel as transfer suitors circle") == []
+    assert _links("Barcelona eye Arsenal\u2019s Gabriel") == [("Gabriel", "FC Barcelona", 1)]
+    assert _links("Barcelona Eye Arsenal Defender Gabriel In Shock Move") == [("Gabriel", "FC Barcelona", 1)]
 
 
 def test_scores_reward_reliable_recent_and_repeated_reports():
@@ -161,3 +167,42 @@ def test_gdelt_outage_stops_early():
     start = datetime(2026, 9, 1, tzinfo=timezone.utc)
     assert fetch_gdelt([f"Club {i}" for i in range(20)], start, NOW, get=down, pause=0) == []
     assert len(calls) == 3
+
+
+def test_gdelt_rate_limits_are_waited_out_and_full_searches_continue():
+    from fetch_rumours import GDELT_CAP, RateLimited, fetch_gdelt
+    calls, waits = [], []
+    answers = iter([
+        RateLimited("429"),                                          # club 1: slow down...
+        b"Please limit requests to one every 5 seconds",             # ...plain-text version
+        {"n": GDELT_CAP, "day": "20261101"},                         # then a full page
+        {"n": 3, "day": "20260915"},                                 # older part of the window
+        {"n": 2, "day": "20261020"},                                 # club 2: not full
+    ])
+
+    def get(url):
+        calls.append(url)
+        a = next(answers)
+        if isinstance(a, Exception):
+            raise a
+        if isinstance(a, bytes):
+            return a
+        return json.dumps({"articles": [{"url": f"https://x/{len(calls)}/{i}", "title": "Spurs eye Conor Gallagher",
+                                         "seendate": a["day"] + "T000000Z", "domain": "x.com"}
+                                        for i in range(a["n"])]}).encode()
+    start = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    arts = fetch_gdelt(["Tottenham Hotspur", "Arsenal"], start, NOW, get=get, pause=0,
+                       backoff=(1, 2), sleep=waits.append)
+    assert waits == [1, 2] and len(calls) == 5
+    assert len(arts) == GDELT_CAP + 3 + 2
+    assert "enddatetime=20261101" in calls[3]                        # second search ends where the first stopped
+
+
+def test_guardian_needs_a_key(monkeypatch, capsys):
+    import fetch_rumours
+    monkeypatch.delenv("GUARDIAN_API_KEY", raising=False)
+    monkeypatch.setattr(fetch_rumours, "fetch_gdelt", lambda *a, **k: [])
+    monkeypatch.setattr(fetch_rumours, "fetch_guardian", lambda *a, **k: (_ for _ in ()).throw(AssertionError))
+    monkeypatch.setattr(fetch_rumours, "latest_players", _db)
+    assert fetch_rumours.main(["--clubs", "2"]) == 1                 # nothing fetched: old file kept
+    assert "Guardian: skipped" in capsys.readouterr().out
