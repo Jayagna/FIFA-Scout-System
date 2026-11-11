@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import sys
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -203,7 +204,7 @@ def test_gdelt_rate_limits_are_waited_out_and_full_searches_continue():
                                         for i in range(a["n"])]}).encode()
     start = datetime(2026, 9, 1, tzinfo=timezone.utc)
     arts = fetch_gdelt(["Tottenham Hotspur", "Arsenal"], start, NOW, get=get, pause=0,
-                       backoff=(1, 2), sleep=waits.append)
+                       backoff=(1, 2), sleep=waits.append, cooldown=99)
     assert waits == [1, 2] and len(calls) == 5
     assert len(arts) == GDELT_CAP + 3 + 2
     assert "Arsenal" not in calls[4] and "enddatetime=20261101" in calls[4]   # picks up where club 1 stopped
@@ -260,3 +261,25 @@ def test_next_run_continues_with_the_clubs_not_yet_searched(monkeypatch, tmp_pat
     assert fetch_rumours.main(["--clubs", "3", "--fresh"]) == 0 and len(asked[2]) == 3
     assert gdelt_terms("Paris Saint-Germain") == ["Paris Saint-Germain", "Paris SG"]
     assert gdelt_terms("1. FC Union Berlin") == ["Union Berlin"]
+
+
+def test_persistent_rate_limits_pause_and_retry_instead_of_giving_up():
+    from fetch_rumours import RateLimited, fetch_gdelt
+    calls, waits = [], []
+    limited = {"Club 0": 1, "Club 1": 1, "Club 2": 0, "Club 3": 0}     # first try of clubs 0 and 1 refused
+
+    def get(url):
+        club = next(c for c in limited if urllib.parse.quote(f'"{c}"') in url or f"%22{c.replace(' ', '+')}%22" in url)
+        calls.append(club)
+        if limited[club]:
+            limited[club] -= 1
+            raise RateLimited("429")
+        return json.dumps({"articles": [{"url": f"https://x/{club}", "title": "t", "seendate": "20261101T000000Z",
+                                         "domain": "x.com"}]}).encode()
+    start = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    done = []
+    arts = fetch_gdelt(list(limited), start, NOW, get=get, pause=0, backoff=(), sleep=waits.append,
+                       cooldown=240, done=done)
+    assert waits == [240]                                           # paused once after two refusals in a row
+    assert calls == ["Club 0", "Club 1", "Club 2", "Club 3", "Club 0", "Club 1"]   # refused clubs retried at the end
+    assert len(arts) == 4 and sorted(done) == sorted(limited)

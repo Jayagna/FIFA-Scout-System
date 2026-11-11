@@ -232,15 +232,15 @@ instances: with and without sales, and with expected ratings, objective bonuses,
 removed players, and excluded plans.
 
 ### Transfer rumours (`fcscout/rumours.py`, `scripts/fetch_rumours.py`)
-Every two months (`.github/workflows/rumours.yml`, on the 1st, 2nd and 3rd of
+Every two months (`.github/workflows/rumours.yml`, on the 1st to 5th of
 Jan/Mar/May/Jul/Sep/Nov) a GitHub Action searches two free sources that allow automated
 access and can be searched over a date range, so nothing in between is missed:
 * the **GDELT** news index (one search per club, for the 80 strongest clubs, last 70 days;
   GDELT returns at most 250 articles a search, so when a big club's search comes back full a
   second one covers the older weeks). GDELT allows few searches per hour from GitHub's shared
-  machines, so each run stops after 35 minutes and saves what it has, and the next run carries
-  on with the clubs not yet searched (`rumours/headlines.json` keeps the cycle's transfer
-  headlines); three runs cover all 80 clubs;
+  machines, so each run pauses when GDELT keeps refusing, stops after 35 minutes and saves
+  what it has, and the next day's run carries on with the clubs not yet searched
+  (`rumours/headlines.json` keeps the cycle's transfer headlines) until all 80 are done;
 * **The Guardian's** football transfer-window articles over the same window, when a free API
   key is saved as the repository secret `GUARDIAN_API_KEY` (get one at
   open-platform.theguardian.com/access; the old public test key no longer works).
