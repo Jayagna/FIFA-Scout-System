@@ -11,7 +11,7 @@ Three tools, one website:
 | Tool | What it answers | How |
 |---|---|---|
 | **Growth forecaster** | "What will this player be rated next year, and the year after?" | Gradient boosting on 136k player-season transitions, edition-based backtests |
-| **Squad builder** | "Who should I buy (and sell) with €X and a wage cap to get the best XI?" | Mixed-integer program solved exactly with HiGHS |
+| **Squad builder** | "Who should I buy (and sell) with €X and a wage cap to get the best XI?" | Mixed-integer program solved exactly with HiGHS, weighted by each player's chance of still being in the game, optionally steered by real transfer rumours |
 | **Replacement finder** | "Who plays like my star but costs half as much?" | Similarity search over standardised attribute profiles (FAISS / NumPy) |
 
 I built it because I play a lot of career mode and kept making transfer decisions on
@@ -28,7 +28,7 @@ python server.py        # http://localhost:8000
 |---|---|
 | Home | A Three.js night match: the floodlights flicker on and the under-21 XI with the highest forecasts drops into a 4-3-3. Click a player to open his page. Below: the top risers as player cards, and the held-out results. |
 | Wonderkids | Filter by age, price, position and league; rank by forecast, growth or EA potential. Cards with 3D tilt, or a table with 80% ranges. |
-| Squad builder | Pick a club, budget, wage cap and formation. The exact optimiser's XI appears on a perspective pitch; new signings arrive highlighted, with the buy and sell lists below. |
+| Squad builder | Pick a club, budget, wage cap, formation and what you're building for (win now, balanced, or the future). You get three different plans on a perspective pitch; new signings arrive highlighted. "Not him" and "Keep him" ban or force a player, Shuffle gives a different near-best plan, and rumoured targets for your club are listed with their headlines. |
 | Replacement finder | Search a player; get the closest attribute profiles under your price cap, with similarity, fee and saving. |
 | Player outlook | Rating history with the two-edition forecast and its 80% band, his rating at every position on a mini pitch, attributes, contract, and look-alikes. |
 
@@ -98,7 +98,31 @@ upgrade per euro; the better of the two is used).
   (**+24%** more improvement from the same money).
 * Median solver time **0.4 s** (max 2.2 s) over the full transfer market (~18k players).
 
+**Why it used to suggest Messi.** The first version ranked signings by rating only. EA's
+values collapse with age, so an 86-rated 38-year-old (€26M) was the best rating per euro,
+and the forecaster never learned that veterans vanish: it only trains on players who appear
+again. Run for all 20 Premier League clubs at €50M, its signings averaged **36.4** years old
+(Acerbi in 16 plans, Messi in 9). With the retirement-risk model below and the three build
+modes, the same runs average **35.9** (win now, by design), **29.8** (balanced, the default)
+and **25.8** (build for the future). In the default mode Messi is in 1 plan (was 9) and
+Acerbi in none (was 16).
+
 **Do forecasts make better signings?** Two seasons out, yes, modestly (+2.5 XI points, interval excluding zero); one season out, no. See [Decision backtest](#decision-backtest).
+
+### Retirement risk
+Of players rated 80+, 97–99% of under-27s are still in the game two editions later, but
+only 56% of 35–36-year-olds and 49% of those 37+. A gradient-boosting classifier on the same
+features predicts this (`fcscout/survival.py`), tested by time like the forecaster:
+
+| Still in the game… | Test | Model AUC | Age × rating baseline AUC | Brier (model / baseline) |
+|---|---|---|---|---|
+| one edition later | FC 25 → FC 26 | **0.76** | 0.71 | 0.151 / 0.161 |
+| two editions later | FC 24 → FC 26 | **0.77** | 0.71 | 0.187 / 0.204 |
+
+Its probabilities run low on the test editions: by 6–9 points for most age groups one
+edition ahead and 1–7 points two ahead (it learns partly from the FC 24 → FC 25 step, where
+the FC 25 game database covers fewer players). That shifts squad and market players alike,
+so it changes which plan wins much less than the ordering by age, which it gets right.
 
 ### Replacement finder
 * **Identity check:** taking each player's FC 25 attributes and searching the FC 26
@@ -173,7 +197,23 @@ subject to  Σ_p y[p,k] = 1          every XI slot filled
             x, y binary
 ```
 `r` is the player's position rating (a striker at LW is rated as a LW), optionally plus the
-forecast change, so the same solver can optimise for today, next season or two seasons out.
+forecast change. Outside "win now" it is an **expected** rating: with `s` the chance the
+player is still in the game and `b` the squad's backup level at that slot,
+`r' = s·r + (1 − s)·min(b, r)`, which keeps the program linear. The modes:
+
+| Mode | Plans on | Stay probability |
+|---|---|---|
+| Win now | today's ratings | — |
+| Balanced (default) | average of the next two forecasts | average of the one- and two-edition ones |
+| Build for the future | the forecast two editions out | two-edition |
+
+**Variety.** Plans B and C add a constraint that the previous plans' exact sets of signings
+can't be repeated (`Σ x ≤ |S| − 1` for each earlier set `S`), so each is the best plan that
+differs from the ones before. "Not him" removes a player, "Keep him" forces one in
+(`x = 1`). Shuffle adds a random preference of up to 1.5 rating points per player to the
+objective only, so the plan is always within 0.4 XI points of the best and the reported
+ratings stay true. **Realism:** players at clubs more than 3 points stronger (mean of the
+best 16) are left out, since they rarely move down; rumoured or kept players are exempt.
 
 The full market is too large to hand to the solver directly (~200k binaries hit the time
 limit), so it is reduced with two rules that provably cannot remove the optimum:
@@ -183,8 +223,28 @@ limit), so it is reduced with two rules that provably cannot remove the optimum:
    position group can always be swapped for one of them.
 
 This leaves roughly 1–2.5k candidates; a plan takes about a second including the pruning.
-The unit tests check the result against brute-force enumeration on random small instances,
-with and without sales.
+With earlier plans excluded, rule 2 needs *max signings + excluded plans* dominators to stay
+exact. The unit tests check the result against brute-force enumeration on random small
+instances: with and without sales, and with expected ratings, objective bonuses, kept and
+removed players, and excluded plans.
+
+### Transfer rumours (`fcscout/rumours.py`, `scripts/fetch_rumours.py`)
+Every two months (`.github/workflows/rumours.yml`, 1st of Jan/Mar/May/Jul/Sep/Nov) a GitHub
+Action searches two free sources that allow automated access and can be searched over a
+date range, so nothing in between is missed:
+* the **GDELT** news index (one search per club, for the 80 strongest clubs, last 70 days);
+* **The Guardian's** football transfer-window articles over the same window.
+
+Only headline, link, outlet and date are kept, never article text. Each headline is
+matched to players in the newest edition (full names always; a surname alone only for
+well-known players nobody else in the database shares) and to clubs (database names plus
+nicknames such as "Man Utd" and "Spurs"). The player's own club is the seller; other clubs
+named are suitors, unless the headline says *from* them. Denials ("reject", "rule out"),
+outgoing news ("open to selling") and contract news are skipped. Each player–club link is
+scored `1 − exp(−Σ outlet weight × stage × recency)`: outlets from 1.0 (The Athletic, BBC)
+down to 0.2 for tabloids; stage 1.0 for "agreed / medical", 0.8 for "bid / talks", 0.5 for
+"interest / target"; recency halves every 45 days. With "Favour rumoured players" on, a linked
+player gets up to +3 rating points in the objective for that club.
 
 ### Replacement finder (`fcscout/similar.py`)
 Players are vectors of their 29 outfield attributes (keepers: GK attributes plus a few
@@ -222,8 +282,9 @@ What this says, plainly:
   who leave the game (retire or move to unlicensed leagues); the forecaster is trained only
   on players who stay, so it does not price that risk.
 
-The natural next step is a second model for the probability a player is still in the game
-and optimising expected rating (rating × that probability), which keeps the program linear.
+That retirement-risk model now exists and the website plans on expected ratings (see
+[Retirement risk](#retirement-risk)); this decision backtest has not yet been rerun with it,
+so its effect on the "gone from the game" column is still to be measured.
 
 ## Limitations
 * **It forecasts EA's next-edition ratings, not in-save growth.** In a career-mode save,
@@ -235,6 +296,10 @@ and optimising expected rating (rating × that probability), which keeps the pro
 * **FC 25 money is mostly estimated**, and FC 24/25 have no loan information.
 * **Survivorship.** Targets exist only for players still in the next edition (~70% per year);
   players who retire or leave licensed leagues are not in the error numbers.
+* **Rumours are matched to a roster that is a season old.** EA FC 26 ratings are from its
+  launch (Sept 2025), so a player who moved in summer 2026 is still listed at his old club.
+  Matching is tuned for precision, so some rumours are missed rather than mismatched;
+  each linked player shows his headlines so you can judge them.
 * Prices are value × a markup you choose, capped by the release clause. Real AI clubs
   negotiate; free agents are left out because these files have no wage data for them.
 
@@ -246,6 +311,8 @@ python scripts/run_all.py --quick     # download, build, train, evaluate (a few 
 python server.py                      # http://localhost:8000
 ```
 `python scripts/run_all.py` also runs the optimizer backtests (about an hour).
+`python scripts/fetch_rumours.py` refreshes the rumour feed by hand (a few minutes; set
+`GUARDIAN_API_KEY` for the Guardian's full rate limit, otherwise its public test key is used).
 Tests: `python -m pytest -q`.
 
 **Deploy.** `Dockerfile` builds the data and models at image build time and serves on
@@ -262,10 +329,13 @@ src/fcscout/data.py        loaders for every source layout -> one schema, gap fi
 src/fcscout/features.py    player-season panel, features and targets
 src/fcscout/forecast.py    growth model, baselines, evaluation
 src/fcscout/optimize.py    MILP squad builder + greedy baseline
+src/fcscout/survival.py    chance a player is still in the game 1 or 2 editions later
+src/fcscout/rumours.py     headline -> (player, club, stage) matching and scoring
 src/fcscout/similar.py     replacement finder
 src/fcscout/service.py     everything the website asks for, as plain functions
 scripts/                   download, build, train, backtests, figures, rating formulas
 reports/                   metrics (JSON/CSV) and figures from the last run
+rumours/rumours.json       the transfer-rumour feed (refreshed every two months by GitHub Actions)
 tests/                     unit tests (incl. brute-force optimality), API and server tests
 ```
 

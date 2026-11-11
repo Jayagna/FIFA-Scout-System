@@ -486,3 +486,44 @@ table.data a:hover { text-decoration: underline; text-decoration-color: var(--fl
   .pcard-fc b { font-size: var(--t-lg); }
   .pcard-meta { font-size: .66rem; }
 }
+
+/* ------------------------------------------------------------------ squad builder: modes, plans, picks, rumours */
+.modes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; border-radius: 12px; }
+.modes button { border-radius: 9px; padding: 8px 6px; line-height: 1.2; }
+.mode-help { margin: -6px 0 0; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-row .btn.primary { flex: 1 1 0; }
+.btn-row .btn { flex: none; }
+.picks { display: flex; flex-wrap: wrap; gap: 6px; }
+.picks:empty { display: none; }
+.pick {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 4px 4px 10px; border-radius: 999px;
+  background: var(--turf-2); border: 1px solid var(--line-2); font-size: var(--t-xs);
+}
+.pick button { border: 0; background: var(--turf-3); color: var(--chalk); width: 22px; height: 22px; border-radius: 50%; cursor: pointer; line-height: 1; }
+.plan-tabs { display: flex; gap: 8px; margin: 0 0 12px; flex-wrap: wrap; }
+.plan-tabs button {
+  display: inline-flex; gap: 8px; align-items: baseline; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  background: var(--turf); border: 1px solid var(--line-2); color: var(--chalk-2); font-size: var(--t-sm);
+}
+.plan-tabs button b { font-family: var(--display); font-size: var(--t-md); color: var(--chalk); }
+.plan-tabs button small { color: inherit; opacity: .8; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-tabs button[aria-selected="true"] { background: var(--chalk); color: var(--night); border-color: var(--chalk); }
+.plan-tabs button[aria-selected="true"] b { color: var(--night); }
+.deal a { text-decoration: none; color: var(--chalk); }
+.deal a:hover strong { text-decoration: underline; text-decoration-color: var(--flood); }
+.deal small { display: block; }
+.deal small.src { margin-top: 3px; color: var(--chalk-3); }
+.deal small.src a { color: var(--chalk-2); text-decoration: underline; text-decoration-color: var(--line-2); }
+.deal-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.mini {
+  border: 1px solid var(--line-2); background: transparent; color: var(--chalk-2); border-radius: 999px;
+  padding: 3px 10px; font-size: .74rem; font-weight: 600; cursor: pointer;
+}
+.mini:hover { color: var(--chalk); background: var(--turf-2); }
+.mini[aria-pressed="true"] { background: var(--flood); color: var(--flood-ink); border-color: var(--flood); }
+.rumour-box { margin-top: 26px; }
+.rumour-box:empty { display: none; }
+.rumour-box h2 { font-size: var(--t-md); margin: 0 0 4px; }
+.rumour-box > p { margin: 0 0 12px; }
+.deal.rumour { border-left: 3px solid var(--chalk-2); }

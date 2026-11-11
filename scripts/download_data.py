@@ -20,6 +20,7 @@ Alternative: put any edition in the Kaggle layout in data/raw/ as players_XX.csv
 (e.g. from Kaggle) and it takes priority over the files below.
 
 Usage:  python scripts/download_data.py
+        python scripts/download_data.py --only players_26.csv    # just some files
 """
 from __future__ import annotations
 
@@ -107,11 +108,17 @@ def fetch(url: str, dest: Path, tries: int = 3) -> None:
             time.sleep(2 * attempt)
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--only", nargs="*", help="download only these local file names")
+    only = set(ap.parse_args(argv).only or [])
     RAW.mkdir(parents=True, exist_ok=True)
     failed, provenance = [], []
     for repo, commit, files in SOURCES:
         for path, local in files:
+            if only and local not in only:
+                continue
             dest = RAW / local
             url = f"{BASE}/{repo}/{commit}/{urllib.parse.quote(path)}"
             provenance.append({"file": local, "repo": repo, "commit": commit, "path": path})
@@ -129,8 +136,9 @@ def main() -> int:
                 print(f"  CHANGED  {local}: checksum differs from the build used for the README numbers")
             else:
                 print(f"  ok       {local}")
-    (ROOT / "reports").mkdir(exist_ok=True)
-    (ROOT / "reports/data_sources.json").write_text(json.dumps(provenance, indent=1))
+    if not only:
+        (ROOT / "reports").mkdir(exist_ok=True)
+        (ROOT / "reports/data_sources.json").write_text(json.dumps(provenance, indent=1))
     if failed:
         print(f"\n{len(failed)} file(s) could not be downloaded: {', '.join(failed)}\n"
               "Check your internet connection and run this script again, or put the files "

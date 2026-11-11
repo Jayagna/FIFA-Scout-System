@@ -420,3 +420,99 @@ if __name__ == "__main__":
                 failures += 1
                 print(f"FAIL  {name}: {e!r}")
     sys.exit(1 if failures else 0)
+
+
+# ------------------------------------------------------------------ new optimizer options
+def _brute_force_general(squad, market, s, stay_sq, stay_mk, bonus, lock=(), ban=(), excluded=()):
+    """Exhaustive search over signings with expected ratings, objective bonuses,
+    locked/banned players and excluded plans. Returns (objective, true XI sum, ids)."""
+    from fcscout.optimize import backup_level, expected_ratings
+    R_sq_raw = slot_ratings(squad, s.formation)
+    R_mk_raw = slot_ratings(market, s.formation)
+    b = backup_level(R_sq_raw)
+    R_sq = expected_ratings(R_sq_raw, stay_sq, b)
+    R_mk = expected_ratings(R_mk_raw, stay_mk, b)
+    R_obj = R_mk + bonus.to_numpy()[:, None] * (R_mk > 0)
+    ask = market["value_eur"].to_numpy() * s.buy_markup
+    wage_cap = squad["wage_eur"].sum() * 1.15
+    ids = market["id"].to_numpy()
+    best = (-1, None, None)
+    for k in range(max(s.max_signings, len(lock)) + 1):
+        for combo in itertools.combinations(range(len(market)), k):
+            combo = list(combo)
+            chosen = set(ids[combo].tolist())
+            if not set(lock) <= chosen or chosen & set(ban) or any(chosen == set(e) for e in excluded):
+                continue
+            if ask[combo].sum() > s.budget or \
+                    squad["wage_eur"].sum() + market["wage_eur"].to_numpy()[combo].sum() > wage_cap:
+                continue
+            R = np.vstack([R_sq, R_obj[combo]]) if combo else R_sq
+            r, c = linear_sum_assignment(-R)
+            obj = R[r, c].sum()
+            if obj > best[0] + 1e-9:
+                Rt = np.vstack([R_sq, R_mk[combo]]) if combo else R_sq
+                best = (obj, Rt[r, c].sum(), chosen)
+    return best
+
+
+def test_expected_ratings_locks_bans_and_alternatives_match_brute_force():
+    rng = np.random.default_rng(7)
+    for trial in range(12):
+        squad = _random_players(rng, 13, 0, "Mine")
+        market = _random_players(rng, 9, 1000, "Other")
+        stay_sq = pd.Series(rng.uniform(0.3, 1, len(squad)), index=squad.index)
+        stay_mk = pd.Series(rng.uniform(0.3, 1, len(market)), index=market.index)
+        bonus = pd.Series(rng.uniform(0, 2, len(market)) * (rng.random(len(market)) < 0.4), index=market.index)
+        s = TransferSettings(formation="4-3-3", budget=float(rng.integers(20, 70)) * 1e6,
+                             max_signings=2, min_depth={}, squad_min=0)
+        ids = market["id"].tolist()
+        lock = [ids[trial % 9]] if trial % 3 == 0 else []
+        ban = [ids[(trial + 4) % 9]] if trial % 2 == 0 else []
+        kw = dict(stay_squad=stay_sq, stay_market=stay_mk, bonus_market=bonus, lock_ids=lock, ban_ids=ban)
+        bf_obj, bf_true, bf_ids = _brute_force_general(squad, market, s, stay_sq, stay_mk, bonus, lock, ban)
+        plan = optimize_squad(squad, market, s, **kw)
+        if bf_ids is None:
+            assert plan.status != "optimal"
+            continue
+        assert plan.status == "optimal"
+        got = set(plan.buys["id"].astype(int))
+        assert set(lock) <= got and not (got & set(ban))
+        # reported ratings exclude the bonus; the chosen plan must reach the best objective
+        # the reported XI uses true (bonus-free) ratings, so it can't beat the best true XI
+        assert plan.xi["rating_at_slot"].sum() <= _true_sum_for(squad, market, s, stay_sq, stay_mk, got) + 1e-6
+        assert abs(_obj_for(squad, market, s, stay_sq, stay_mk, bonus, got) - bf_obj) < 1e-6, trial
+        # second-best plan with the first excluded
+        alt = optimize_squad(squad, market, s, exclude_buy_sets=[sorted(got)], **kw)
+        bf2 = _brute_force_general(squad, market, s, stay_sq, stay_mk, bonus, lock, ban, excluded=[got])
+        if bf2[2] is None:
+            assert alt.status != "optimal"
+        else:
+            alt_ids = set(alt.buys["id"].astype(int))
+            assert alt_ids != got
+            assert abs(_obj_for(squad, market, s, stay_sq, stay_mk, bonus, alt_ids) - bf2[0]) < 1e-6, trial
+
+
+def _true_sum_for(squad, market, s, stay_sq, stay_mk, chosen):
+    from fcscout.optimize import backup_level, expected_ratings
+    R_sq_raw = slot_ratings(squad, s.formation)
+    b = backup_level(R_sq_raw)
+    R_sq = expected_ratings(R_sq_raw, stay_sq, b)
+    m = market["id"].isin(chosen).to_numpy()
+    R_mk = expected_ratings(slot_ratings(market, s.formation), stay_mk, b)[m]
+    return _assign_sum(np.vstack([R_sq, R_mk]), None)
+
+
+def _obj_for(squad, market, s, stay_sq, stay_mk, bonus, chosen):
+    from fcscout.optimize import backup_level, expected_ratings
+    R_sq_raw = slot_ratings(squad, s.formation)
+    b = backup_level(R_sq_raw)
+    R_sq = expected_ratings(R_sq_raw, stay_sq, b)
+    m = market["id"].isin(chosen).to_numpy()
+    R_mk = expected_ratings(slot_ratings(market, s.formation), stay_mk, b)
+    R_obj = (R_mk + bonus.to_numpy()[:, None] * (R_mk > 0))[m]
+    return _assign_sum(np.vstack([R_sq, R_obj]), None)
+
+
+def _assign_sum(R, _):
+    r, c = linear_sum_assignment(-R)
+    return R[r, c].sum()

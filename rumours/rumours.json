@@ -1,0 +1,11 @@
+{
+ "generated": null,
+ "window_days": 70,
+ "edition": 26,
+ "sources": [
+  "GDELT",
+  "The Guardian"
+ ],
+ "headlines_scanned": 0,
+ "links": []
+}

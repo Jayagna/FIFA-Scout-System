@@ -1,0 +1,37 @@
+# Refreshes rumours/rumours.json every two months (transfer rumours are sparse week to
+# week, and the sources searched keep about three months of headlines). Run it by hand
+# from the Actions tab with "Run workflow".
+name: Refresh transfer rumours
+
+on:
+  schedule:
+    - cron: "17 3 1 */2 *"     # 03:17 UTC on the 1st of Jan, Mar, May, Jul, Sep, Nov
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rumours:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install numpy pandas scipy scikit-learn
+      - name: Download the newest edition's player file
+        run: python scripts/download_data.py --only players_26.csv
+      - name: Fetch and match headlines
+        env:
+          GUARDIAN_API_KEY: ${{ secrets.GUARDIAN_API_KEY }}
+        run: python scripts/fetch_rumours.py
+      - name: Commit the new feed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add rumours/rumours.json
+          git diff --cached --quiet || git commit -m "Refresh transfer rumours ($(date -u +%Y-%m-%d))"
+          git push

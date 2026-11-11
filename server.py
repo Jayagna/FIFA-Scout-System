@@ -135,6 +135,11 @@ def replacements(request):
 
 
 @api
+def rumours(request):
+    return service.rumours(store(), request.query_params.get("club", ""))
+
+
+@api
 def report(request):
     return service.report(store())
 
@@ -151,9 +156,12 @@ async def squad(request: Request):
             store(), body.get("club", ""), formation=body.get("formation", "4-3-3"),
             budget_m=float(body.get("budget", 50)), wage_budget_k=body.get("wage_budget"),
             max_signings=int(body.get("max_signings", 3)), max_age=body.get("max_age"),
-            objective=body.get("objective", "next"), allow_sales=bool(body.get("allow_sales")),
+            objective=body.get("objective", "balanced"), allow_sales=bool(body.get("allow_sales")),
             max_sales=int(body.get("max_sales", 3)), markup=float(body.get("markup", 1.2)),
-            market_leagues=body.get("market_leagues") or None)
+            market_leagues=body.get("market_leagues") or None,
+            realistic=bool(body.get("realistic", True)), alternatives=int(body.get("alternatives", 2)),
+            seed=body.get("seed"), ban_ids=[int(i) for i in body.get("ban_ids") or []],
+            lock_ids=[int(i) for i in body.get("lock_ids") or []], rumours=bool(body.get("rumours")))
     return await run_in_threadpool(api(lambda _: solve()), request)
 
 
@@ -172,6 +180,7 @@ routes = [
     Route("/api/meta", meta), Route("/api/search", search), Route("/api/wonderkids", wonderkids),
     Route("/api/risers", risers), Route("/api/dream-xi", dream_xi), Route("/api/player/{pid:int}", player), Route("/api/club", club),
     Route("/api/replacements", replacements), Route("/api/report", report),
+    Route("/api/rumours", rumours),
     Route("/api/squad", squad, methods=["POST"]),
     Mount("/", WebFiles(directory=ROOT / "web", html=True), name="web"),
 ]

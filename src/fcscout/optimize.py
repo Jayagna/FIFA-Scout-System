@@ -14,7 +14,12 @@ Mixed-integer program, solved exactly with HiGHS (scipy.optimize.milp):
              squad size and per-position depth limits
 
 r_pk is the player's sofifa rating *at that position* (an ST playing LW is
-rated as a LW), optionally shifted by the growth forecast. The market is first
+rated as a LW), optionally shifted by the growth forecast. With a stay-in-the-game
+probability s_p it becomes an expected rating, s_p * r_pk + (1 - s_p) * b_k, where b_k
+is the squad's backup level at slot k (capped at r_pk, so leaving never helps).
+Optional objective-only bonuses (transfer rumours, shuffle noise) change which plan
+is chosen but not the ratings reported. Locked signings are forced in, banned ones
+removed, and earlier plans can be excluded to produce alternatives. The market is first
 reduced with two pruning rules that cannot remove the optimum (see
 _slot_thresholds and _undominated), which keeps the solve to about a second.
 A greedy baseline (what you would do by hand: biggest affordable upgrade
@@ -72,16 +77,38 @@ def buyable(market: pd.DataFrame) -> pd.DataFrame:
     return m.reset_index(drop=True)
 
 
-def _prepare(squad, market, boost_squad, boost_market):
-    """Align optional per-player boosts (indexed like the input frames) with the
-    filtered, re-indexed frames the solver works on."""
+def _prepare(squad, market, boost_squad, boost_market, extra_squad=None, extra_market=None):
+    """Align optional per-player series (indexed like the input frames) with the
+    filtered, re-indexed frames the solver works on. extra_* map a column name to a
+    Series; missing players get NaN."""
     squad = squad.assign(_boost=0.0 if boost_squad is None else boost_squad.reindex(squad.index))
     market = market.assign(_boost=0.0 if boost_market is None else boost_market.reindex(market.index))
+    for name, ser in (extra_squad or {}).items():
+        squad = squad.assign(**{name: ser.reindex(squad.index)})
+    for name, ser in (extra_market or {}).items():
+        market = market.assign(**{name: ser.reindex(market.index)})
     squad = squad.reset_index(drop=True)
     market = buyable(market)
     bs = None if boost_squad is None else squad["_boost"]
     bm = None if boost_market is None else market["_boost"]
     return squad, market, bs, bm
+
+
+def backup_level(R_squad: np.ndarray, depth: int = 12) -> np.ndarray:
+    """b_k: the squad's backup rating at each slot (its depth-th best option there)."""
+    if len(R_squad) == 0:
+        return np.zeros(R_squad.shape[1])
+    srt = -np.sort(-R_squad, axis=0)
+    return srt[min(depth, len(R_squad)) - 1]
+
+
+def expected_ratings(R: np.ndarray, stay: pd.Series | None, backup: np.ndarray) -> np.ndarray:
+    """s * r + (1 - s) * min(b, r) where r > 0; players who can't play a slot stay at 0."""
+    if stay is None:
+        return R
+    s_ = stay.fillna(1.0).clip(0, 1).to_numpy()[:, None]
+    E = s_ * R + (1 - s_) * np.minimum(backup[None, :], R)
+    return np.where(R > 0, E, 0.0)
 
 
 def slot_ratings(df: pd.DataFrame, formation: str, boost: pd.Series | None = None) -> np.ndarray:
@@ -149,8 +176,13 @@ def _undominated(R: np.ndarray, fee: np.ndarray, wage: np.ndarray, ids: np.ndarr
 
 def _candidate_pool(squad: pd.DataFrame, market: pd.DataFrame, s: TransferSettings,
                     R_squad: np.ndarray, R_market: np.ndarray, ask: np.ndarray,
-                    wage: np.ndarray):
-    """Exact reduction of the transfer market. Returns (pool indices, thresholds T)."""
+                    wage: np.ndarray, locked: np.ndarray | None = None, n_excluded: int = 0):
+    """Exact reduction of the transfer market. Returns (pool indices, thresholds T).
+
+    With n_excluded earlier plans ruled out, a player needs max_signings + n_excluded
+    dominators to be dropped: of those, at least n_excluded + 1 are unused in any plan,
+    swapping each in gives a different set of signings, and at most n_excluded sets are
+    excluded, so one swap is always allowed. Locked players are always kept."""
     max_spend = s.budget + (s.sell_factor * squad["value_eur"].fillna(0).sort_values(ascending=False)
                             .head(s.max_sales).sum() if s.allow_sales else 0)
     ok = ask <= max_spend
@@ -164,7 +196,7 @@ def _candidate_pool(squad: pd.DataFrame, market: pd.DataFrame, s: TransferSettin
     groups = market["pos_group"].astype(str).to_numpy()
     ids = market["id"].to_numpy()
     keep = np.zeros(len(market), bool)
-    m = max(s.max_signings, 1)
+    m = max(s.max_signings, 1) + n_excluded
     for g in np.unique(groups):
         idx = np.where(useful & (groups == g))[0]
         if len(idx):
@@ -176,6 +208,8 @@ def _candidate_pool(squad: pd.DataFrame, market: pd.DataFrame, s: TransferSettin
             if len(idx):
                 zero = np.zeros((len(idx), 1))
                 keep[idx[_undominated(zero, ask[idx], wage[idx], ids[idx], m)]] = True
+    if locked is not None:
+        keep |= locked
     return np.where(keep)[0], T
 
 
@@ -193,32 +227,74 @@ class Plan:
     baseline_xi_rating: float
     n_candidates: int
     solve_seconds: float
+    notes: list = field(default_factory=list)
 
 
 def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: TransferSettings,
                    boost_squad: pd.Series | None = None,
-                   boost_market: pd.Series | None = None) -> Plan:
+                   boost_market: pd.Series | None = None,
+                   stay_squad: pd.Series | None = None,
+                   stay_market: pd.Series | None = None,
+                   bonus_market: pd.Series | None = None,
+                   ban_ids=None, lock_ids=None, exclude_buy_sets=None) -> Plan:
+    """boost_*: per-player rating change (forecast). stay_*: probability the player is
+    still in the game at the horizon. bonus_market: objective-only extra value for
+    signing a player (rumours, shuffle noise). ban_ids: never sign; lock_ids: must
+    sign; exclude_buy_sets: lists of player ids, each an earlier plan's signings that
+    must not be repeated exactly."""
     import time
 
     s = settings
-    squad, market, boost_squad, boost_market = _prepare(squad, market, boost_squad, boost_market)
+    notes = []
+    ban = set(int(i) for i in (ban_ids or []))
+    if ban:
+        market = market[~market["id"].isin(ban)]
+    extra_sq = {"_stay": stay_squad} if stay_squad is not None else {}
+    extra_mk = {}
+    if stay_market is not None:
+        extra_mk["_stay"] = stay_market
+    if bonus_market is not None:
+        extra_mk["_bonus"] = bonus_market
+    squad, market, boost_squad, boost_market = _prepare(squad, market, boost_squad, boost_market,
+                                                        extra_sq, extra_mk)
     slots = FORMATIONS[s.formation]
-    R_sq = slot_ratings(squad, s.formation, boost_squad)
-    R_mk_all = slot_ratings(market, s.formation, boost_market)
+    R_sq_raw = slot_ratings(squad, s.formation, boost_squad)
+    R_mk_raw = slot_ratings(market, s.formation, boost_market)
+    use_stay = stay_squad is not None or stay_market is not None
+    backup = backup_level(R_sq_raw)
+    R_sq = expected_ratings(R_sq_raw, squad["_stay"] if "_stay" in squad else None, backup) if use_stay else R_sq_raw
+    R_mk_true = expected_ratings(R_mk_raw, market["_stay"] if "_stay" in market else None, backup) if use_stay else R_mk_raw
+    R_mk_obj = R_mk_true
+    if "_bonus" in market:
+        R_mk_obj = R_mk_true + market["_bonus"].fillna(0).to_numpy()[:, None] * (R_mk_true > 0)
+    lock = set(int(i) for i in (lock_ids or []))
+    locked_all = market["id"].isin(lock).to_numpy()
+    missing = lock - set(market.loc[locked_all, "id"].astype(int))
+    if missing:
+        notes.append(f"{len(missing)} locked player(s) can't be bought (no club, value or wage in the data)")
+    excluded = [set(int(i) for i in ids) for ids in (exclude_buy_sets or []) if len(ids)]
     ask_all, _, wage_mk_all = _costs(market, s)
-    pool, T = _candidate_pool(squad, market, s, R_sq, R_mk_all, ask_all, wage_mk_all)
+    pool, T = _candidate_pool(squad, market, s, R_sq, R_mk_obj, ask_all, wage_mk_all,
+                              locked=locked_all, n_excluded=len(excluded))
     mk = market.iloc[pool].reset_index(drop=True)
-    R_mk = R_mk_all[pool]
+    R_mk = R_mk_obj[pool]
+    R_mk_report = R_mk_true[pool]
+    R_mk_if_stays = R_mk_raw[pool]
+    locked = locked_all[pool]
     ask, wage_mk = ask_all[pool], wage_mk_all[pool]
     _, sell, wage_sq = _costs(squad, s)
 
     nS, nC, K = len(squad), len(mk), len(slots)
     nP = nS + nC
     R = np.vstack([R_sq, R_mk]) if nC else R_sq
+    R_true = np.vstack([R_sq, R_mk_report]) if nC else R_sq
+    R_stays = np.vstack([R_sq_raw, R_mk_if_stays]) if nC else R_sq_raw
     # y variables only where they can matter: any squad player with a rating there,
-    # signings only above the slot threshold (see _slot_thresholds)
+    # signings only above the slot threshold (see _slot_thresholds); locked signings
+    # wherever they can play
     pairs = [(p, k) for p in range(nS) for k in range(K) if R[p, k] > 0]
-    pairs += [(p, k) for p in range(nS, nP) for k in range(K) if R[p, k] > max(T[k], 0)]
+    pairs += [(p, k) for p in range(nS, nP) for k in range(K)
+              if R[p, k] > (0 if locked[p - nS] else max(T[k], 0))]
     nY = len(pairs)
     n = nP + nY
     c = np.zeros(n)
@@ -261,7 +337,14 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
     wage_budget = s.wage_budget if s.wage_budget is not None else wage_sq.sum() * 1.15
     add({**{i: wage_sq[i] for i in range(nS)}, **{nS + i: wage_mk[i] for i in range(nC)}},
         -np.inf, max(wage_budget, 0))
-    add({nS + i: 1.0 for i in range(nC)}, 0, s.max_signings)
+    add({nS + i: 1.0 for i in range(nC)}, 0, max(s.max_signings, int(locked.sum())))
+    if int(locked.sum()) > s.max_signings:
+        notes.append("more players locked than signings allowed; all locked players are signed")
+    pool_ids = mk["id"].astype(int).to_numpy() if nC else np.array([], int)
+    for ex in excluded:
+        members = [nS + i for i in range(nC) if pool_ids[i] in ex]
+        if len(members) == len(ex):        # otherwise that plan is impossible anyway
+            add({m_: 1.0 for m_ in members}, -np.inf, len(ex) - 1)
     size_lo = min(s.squad_min, nS)
     # without sales, a big squad must still be allowed to add the signings
     size_hi = max(s.squad_max, nS) if s.allow_sales else max(s.squad_max, nS + s.max_signings)
@@ -283,6 +366,7 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
     else:
         lb[:nS] = 1.0  # keep everyone
         cons = [LinearConstraint(A, lo, hi)]
+    lb[nS:nP] = np.where(locked, 1.0, 0.0) if nC else lb[nS:nP]
     t0 = time.time()
     res = milp(c, integrality=np.ones(n), bounds=Bounds(lb, ub), constraints=cons,
                options={"time_limit": s.time_limit, "mip_rel_gap": 1e-6})
@@ -293,7 +377,7 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
         empty_sales = pd.DataFrame(columns=["id", "name", "age", "primary_pos", "overall",
                                             "value_eur", "fee"])
         return Plan(res.message, np.nan, pd.DataFrame(), empty_buys, empty_sales,
-                    0, 0, 0, np.nan, _xi_only(squad, R_sq), nC, dt)
+                    0, 0, 0, np.nan, _xi_only(squad, R_sq), nC, dt, notes)
     x = np.round(res.x).astype(int)
     xi_rows = []
     allp = pd.concat([squad.assign(_src="squad"), mk.assign(_src="signing")], ignore_index=True)
@@ -301,7 +385,9 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
         if x[nP + j]:
             row = allp.iloc[p]
             xi_rows.append({"slot": slots[k][0], "name": row["name"], "id": row["id"],
-                            "rating_at_slot": R[p, k], "overall": row["overall"], "age": row["age"],
+                            "rating_at_slot": R_true[p, k], "rating_if_stays": R_stays[p, k],
+                            "stay": float(row["_stay"]) if "_stay" in row and pd.notna(row["_stay"]) else 1.0,
+                            "overall": row["overall"], "age": row["age"],
                             "source": row["_src"], "club": row.get("club")})
     order = {sl[0]: i for i, sl in enumerate(slots)}
     xi = pd.DataFrame(xi_rows).sort_values("slot", key=lambda s_: s_.map(order)).reset_index(drop=True)
@@ -315,7 +401,7 @@ def optimize_squad(squad: pd.DataFrame, market: pd.DataFrame, settings: Transfer
     wage_bill = float(wage_sq @ x[:nS] + (wage_mk @ x[nS:nP] if nC else 0))
     return Plan("optimal" if res.status == 0 else res.message, float(-res.fun), xi, buys, sales,
                 float(buys["fee"].sum()), float(sales["fee"].sum()), wage_bill,
-                float(xi["rating_at_slot"].mean()), _xi_only(squad, R_sq), nC, dt)
+                float(xi["rating_at_slot"].mean()), _xi_only(squad, R_sq), nC, dt, notes)
 
 
 def _xi_only(squad: pd.DataFrame, R_sq: np.ndarray) -> float:

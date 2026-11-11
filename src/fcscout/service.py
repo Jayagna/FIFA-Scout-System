@@ -91,6 +91,25 @@ def clean(obj):
     return obj
 
 
+def load_rumours(path: Path, cur: pd.DataFrame) -> dict:
+    """Read rumours.json (scripts/fetch_rumours.py) and index it by buying club. Links to
+    players or clubs that aren't in the current edition are skipped."""
+    path = Path(path)
+    if not path.exists():
+        return {}
+    raw = json.loads(path.read_text())
+    ids = set(cur["id"].astype(int))
+    clubs = set(cur["club"].dropna())
+    by_club: dict = {}
+    for link in raw.get("links", []):
+        pid, club = int(link["player_id"]), link["to_club"]
+        if pid in ids and club in clubs:
+            by_club.setdefault(club, {})[pid] = link
+    return {"generated": raw.get("generated"), "window_days": raw.get("window_days"),
+            "sources": raw.get("sources", []), "by_club": by_club,
+            "n_links": sum(len(v) for v in by_club.values())}
+
+
 @dataclass
 class Store:
     cur: pd.DataFrame                    # newest edition, with forecasts
@@ -99,6 +118,12 @@ class Store:
     index: SimilarityIndex
     reports: dict = field(default_factory=dict)
     editions: dict = field(default_factory=dict)
+    club_strength: dict = field(default_factory=dict)
+    rumours: dict = field(default_factory=dict)
+
+    def rumours_for(self, club: str) -> dict:
+        """player id -> rumour link, for players linked with this club."""
+        return self.rumours.get("by_club", {}).get(club, {})
 
     # ---------------------------------------------------------------- loading
     @classmethod
@@ -116,8 +141,9 @@ class Store:
         for c in ("pos_group", "primary_pos", "preferred_foot"):
             if c in cur:
                 cur[c] = cur[c].astype(str).replace({"nan": np.nan})
-        keep = ["id", "pred_t1", "pred_t1_lo", "pred_t1_hi", "pred_t2", "pred_t2_lo", "pred_t2_hi"]
-        cur = cur.merge(forecasts[keep], on="id", how="left").reset_index(drop=True)
+        keep = ["id", "pred_t1", "pred_t1_lo", "pred_t1_hi", "pred_t2", "pred_t2_lo", "pred_t2_hi",
+                "surv_t1", "surv_t2"]
+        cur = cur.merge(forecasts[[c for c in keep if c in forecasts]], on="id", how="left").reset_index(drop=True)
         cur["growth_t2"] = cur["pred_t2"] - cur["overall"]
         cur["_fold"] = (cur["name"].fillna("").map(_fold) + " | " + cur["long_name"].fillna("").map(_fold))
         hist_cols = ["id", "edition", "name", "overall", "potential", "club", "value_eur"]
@@ -130,8 +156,11 @@ class Store:
                 if p.exists():
                     reports[name] = json.loads(p.read_text())
         editions = panel.groupby("edition").size().to_dict()
+        ranked = cur.dropna(subset=["club"]).sort_values("overall", ascending=False)
+        strength = ranked[ranked.groupby("club").cumcount() < 16].groupby("club")["overall"].mean().to_dict()
+        rumours = load_rumours(Path(reports_dir).parent / "rumours/rumours.json", cur) if reports_dir else {}
         return cls(cur=cur, history=history, latest=latest, index=SimilarityIndex(cur),
-                   reports=reports, editions=editions)
+                   reports=reports, editions=editions, club_strength=strength, rumours=rumours)
 
     def row(self, player_id: int) -> pd.Series:
         hit = self.cur.index[self.cur["id"] == int(player_id)]
@@ -151,6 +180,7 @@ def brief(r: pd.Series) -> dict:
         "value": r.get("value_eur"), "wage": r.get("wage_eur"), "face": r.get("face_url"),
         "pred_t1": r.get("pred_t1"), "pred_t1_lo": r.get("pred_t1_lo"), "pred_t1_hi": r.get("pred_t1_hi"),
         "pred_t2": r.get("pred_t2"), "pred_t2_lo": r.get("pred_t2_lo"), "pred_t2_hi": r.get("pred_t2_hi"),
+        "stay_t1": r.get("surv_t1"), "stay_t2": r.get("surv_t2"),
         "card": {s: r.get(s) for s in FACE_STATS},
     })
 
@@ -192,6 +222,8 @@ def meta(store: Store) -> dict:
                      for e, n in sorted(store.editions.items())],
         "leagues": leagues, "default_league": PREMIER_LEAGUE if PREMIER_LEAGUE in cur["league"].values else (leagues[0]["name"] if leagues else None),
         "formations": {f: formation_layout(f) for f in FORMATIONS},
+        "rumours": {"generated": (store.rumours or {}).get("generated"),
+                    "links": (store.rumours or {}).get("n_links", 0)},
         "forecast_test": {h: {"test": edition_name(v["test_edition"]) + " to " + edition_name(v["test_edition"] + int(h[1])),
                               "mae": v["overall"]["model"]["mae"],
                               "mae_potential": v["overall"]["ea_potential"]["mae"],
@@ -300,47 +332,127 @@ def club(store: Store, name: str) -> dict:
                   "players": _briefs(sq)})
 
 
+# build modes: which forecast(s) to plan on and which stay-in-the-game probability to use.
+# "balanced" values a signing over the next two seasons: the average of the two
+# forecasts and of the two stay probabilities.
+MODES = {"now": ((), ()), "next": (("pred_t1",), ("surv_t1",)),
+         "balanced": (("pred_t1", "pred_t2"), ("surv_t1", "surv_t2")),
+         "future": (("pred_t2",), ("surv_t2",))}
+MODE_ALIASES = {"two": "future", "win_now": "now"}
+REALISM_GAP = 3.0        # skip players at clubs this much stronger (mean of best 16) than yours
+SHUFFLE_NOISE = 1.5      # rating points of random preference per player when shuffling
+                         # (a shuffled plan is within 3 * 1.5 / 11 = 0.4 XI points of the best)
+RUMOUR_POINTS = 3.0      # extra rating points for a player strongly linked with the club
+
+
+def _plan_dict(store: "Store", plan, layout: dict) -> dict:
+    xi = []
+    if plan.status == "optimal":
+        for _, x in plan.xi.iterrows():
+            xi.append(dict(layout[x["slot"]], player=brief(store.row(x["id"])),
+                           rating=float(x["rating_at_slot"]), rating_if_stays=float(x["rating_if_stays"]),
+                           stay=float(x["stay"]), signing=x["source"] == "signing"))
+    buys = [dict(brief(store.row(i)), fee=float(f)) for i, f in zip(plan.buys["id"], plan.buys["fee"])]
+    sales = [dict(brief(store.row(i)), fee=float(f)) for i, f in zip(plan.sales["id"], plan.sales["fee"])]
+    return {"status": plan.status, "xi": xi, "buys": buys, "sales": sales,
+            "xi_rating": plan.xi_rating, "spend": plan.spend, "income": plan.income,
+            "wage_bill": plan.wage_bill, "candidates": plan.n_candidates,
+            "solve_seconds": plan.solve_seconds, "notes": plan.notes}
+
+
 def squad_plan(store: Store, club_name: str, formation: str = "4-3-3", budget_m: float = 50,
                wage_budget_k: float | None = None, max_signings: int = 3, max_age: int | None = None,
-               objective: str = "next", allow_sales: bool = False, max_sales: int = 3,
-               markup: float = 1.2, market_leagues: list[str] | None = None) -> dict:
+               objective: str = "balanced", allow_sales: bool = False, max_sales: int = 3,
+               markup: float = 1.2, market_leagues: list[str] | None = None,
+               realistic: bool = True, alternatives: int = 2, seed: int | None = None,
+               ban_ids: list[int] | None = None, lock_ids: list[int] | None = None,
+               rumours: bool = False) -> dict:
+    """Best signings for a club, plus up to `alternatives` different plans.
+
+    objective: "now" (today's ratings), "next" (next season's forecast, weighted by the
+    chance each player is still in the game), "balanced" (average of the next two
+    seasons, the default) or "future" (two seasons out).
+    realistic: leave out players at much stronger clubs (they rarely move down).
+    seed: shuffle - a small random preference per player, so repeated runs differ.
+    rumours: favour players linked with this club in the transfer-rumour feed."""
+    objective = MODE_ALIASES.get(objective, objective)
+    if objective not in MODES:
+        raise ValueError(f"unknown objective {objective}")
     cur = store.cur
     squad = cur[cur["club"] == club_name]
     if squad.empty:
         raise KeyError(club_name)
     if formation not in FORMATIONS:
         raise ValueError(f"unknown formation {formation}")
+    lock = [int(i) for i in (lock_ids or [])]
+    linked = store.rumours_for(club_name) if rumours else {}
     market = cur[cur["club"] != club_name]
     if market_leagues:
-        market = market[market["league"].isin(market_leagues)]
-    boost_col = {"now": None, "next": "pred_t1", "two": "pred_t2"}.get(objective)
-    bs = bm = None
-    if boost_col:
-        bs = (squad[boost_col] - squad["overall"]).fillna(0)
-        bm = (market[boost_col] - market["overall"]).fillna(0)
+        market = market[market["league"].isin(market_leagues) | market["id"].isin(lock) | market["id"].isin(linked)]
+    dropped_realism = 0
+    if realistic and club_name in store.club_strength:
+        own = store.club_strength[club_name]
+        theirs = market["club"].map(store.club_strength).fillna(0)
+        too_big = (theirs > own + REALISM_GAP) & ~market["id"].isin(lock) & ~market["id"].isin(linked)
+        dropped_realism = int(too_big.sum())
+        market = market[~too_big]
+    boost_cols, stay_cols = MODES[objective]
+    bs = bm = st_s = st_m = None
+    if boost_cols:
+        bs = (squad[list(boost_cols)].mean(axis=1) - squad["overall"]).fillna(0)
+        bm = (market[list(boost_cols)].mean(axis=1) - market["overall"]).fillna(0)
+    if stay_cols and all(c in cur for c in stay_cols):
+        st_s, st_m = squad[list(stay_cols)].mean(axis=1), market[list(stay_cols)].mean(axis=1)
+    bonus = pd.Series(0.0, index=market.index)
+    if linked:
+        bonus = bonus + market["id"].map({i: RUMOUR_POINTS * r["score"] for i, r in linked.items()}).fillna(0)
+    if seed is not None:
+        rng = np.random.default_rng(int(seed))
+        bonus = bonus + rng.uniform(0, SHUFFLE_NOISE, len(market))
     bill = float(squad["wage_eur"].fillna(0).sum())
     wage_budget = bill * 1.15 if wage_budget_k is None else wage_budget_k * 1e3
     s = TransferSettings(formation=formation, budget=budget_m * 1e6, wage_budget=wage_budget,
                          max_signings=int(max_signings), allow_sales=bool(allow_sales),
                          max_sales=int(max_sales), buy_markup=float(markup),
                          max_age=None if not max_age or max_age >= 40 else int(max_age), time_limit=30)
-    plan = optimize_squad(squad, market, s, boost_squad=bs, boost_market=bm)
     layout = {d["slot"]: d for d in formation_layout(formation)}
-    xi = []
-    if plan.status == "optimal":
-        for _, x in plan.xi.iterrows():
-            xi.append(dict(layout[x["slot"]], player=brief(store.row(x["id"])),
-                           rating=float(x["rating_at_slot"]), signing=x["source"] == "signing"))
-    buys = [dict(brief(store.row(i)), fee=float(f)) for i, f in zip(plan.buys["id"], plan.buys["fee"])]
-    sales = [dict(brief(store.row(i)), fee=float(f)) for i, f in zip(plan.sales["id"], plan.sales["fee"])]
+    kw = dict(boost_squad=bs, boost_market=bm, stay_squad=st_s, stay_market=st_m,
+              bonus_market=bonus if (linked or seed is not None) else None,
+              ban_ids=ban_ids, lock_ids=lock)
+    plans, seen = [], []
+    for _ in range(1 + max(0, int(alternatives))):
+        plan = optimize_squad(squad, market, s, exclude_buy_sets=seen, **kw)
+        if plan.status != "optimal" or (plans and plan.buys.empty):
+            break
+        plans.append(_plan_dict(store, plan, layout))
+        if plan.buys.empty:
+            break
+        seen.append(plan.buys["id"].astype(int).tolist())
+    first = plans[0] if plans else _plan_dict(store, plan, layout)
+    for p in plans:
+        for b in p["buys"]:
+            if b["id"] in linked:
+                b["rumour"] = linked[b["id"]]
     return clean({
-        "status": plan.status, "club": club_name, "formation": formation, "objective": objective,
-        "xi": xi, "buys": buys, "sales": sales,
-        "xi_rating": plan.xi_rating, "baseline_xi_rating": plan.baseline_xi_rating,
-        "spend": plan.spend, "income": plan.income, "wage_bill": plan.wage_bill,
+        "status": first["status"], "club": club_name, "formation": formation, "objective": objective,
+        "xi": first["xi"], "buys": first["buys"], "sales": first["sales"], "plans": plans,
+        "xi_rating": first["xi_rating"], "baseline_xi_rating": plan.baseline_xi_rating,
+        "spend": first["spend"], "income": first["income"], "wage_bill": first["wage_bill"],
         "wage_budget": wage_budget, "current_wage_bill": bill, "budget": budget_m * 1e6,
-        "candidates": plan.n_candidates, "solve_seconds": plan.solve_seconds,
+        "candidates": first["candidates"], "solve_seconds": sum(p["solve_seconds"] for p in plans),
+        "realism_dropped": dropped_realism, "rumour_links": len(linked), "notes": first.get("notes", []),
     })
+
+
+def rumours(store: Store, club: str) -> dict:
+    """Players linked with a club in the rumour feed, strongest link first."""
+    linked = store.rumours_for(club)
+    rows = []
+    for pid, link in sorted(linked.items(), key=lambda kv: -kv[1]["score"]):
+        rows.append(dict(brief(store.row(pid)), rumour=link))
+    meta_ = store.rumours or {}
+    return clean({"club": club, "generated": meta_.get("generated"), "window_days": meta_.get("window_days"),
+                  "total_links": meta_.get("n_links", 0), "players": rows})
 
 
 def replacements(store: Store, player_id: int, max_fee_m: float | None = None,
