@@ -51,15 +51,23 @@ export function debounce(fn, ms = 250) {
 
 const SILHOUETTE = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="36" r="20" fill="currentColor"/><path d="M12 100c2-24 18-36 38-36s36 12 38 36z" fill="currentColor"/></svg>`;
 
-/** Round face: the player's photo from the dataset, or a drawn stand-in. */
+/** Player photo: tries each source in p.faces until one loads (EA's portrait, then
+ *  Futbin, then sofifa); a drawn silhouette shows until then, and stays if none load. */
 export function face(p, cls = "") {
   const wrap = h(`div.face${cls ? "." + cls : ""}`, { style: { "--c": `var(--${p.tier || "silver"})` } });
   const fallback = h("div.fallback", { html: SILHOUETTE });
   wrap.append(fallback);
-  if (p.face) {
-    const img = h("img", { src: p.face, alt: "", loading: "lazy", decoding: "async", referrerpolicy: "no-referrer" });
-    img.addEventListener("load", () => { fallback.remove(); });
-    img.addEventListener("error", () => img.remove());
+  const sources = (p.faces && p.faces.length ? p.faces : [p.face]).filter(Boolean);
+  if (sources.length) {
+    let i = 0;
+    const img = h("img", { alt: "", loading: "lazy", decoding: "async", referrerpolicy: "no-referrer" });
+    img.addEventListener("load", () => { fallback.remove(); wrap.classList.add("has-photo"); });
+    img.addEventListener("error", () => {
+      i += 1;
+      if (i < sources.length) img.src = sources[i];
+      else img.remove();
+    });
+    img.src = sources[0];
     wrap.append(img);
   }
   return wrap;

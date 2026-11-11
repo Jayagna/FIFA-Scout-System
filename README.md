@@ -32,8 +32,11 @@ python server.py        # http://localhost:8000
 | Replacement finder | Search a player; get the closest attribute profiles under your price cap, with similarity, fee and saving. |
 | Player outlook | Rating history with the two-edition forecast and its 80% band, his rating at every position on a mini pitch, attributes, contract, and look-alikes. |
 
-Player photos are sofifa's own images, loaded from each dataset's face URL; when a photo
-can't load, the card shows a drawn silhouette in the player's rating tier colour.
+Player photos are loaded straight from the image CDNs by player id, trying each source in
+turn: EA's own FC 25 portraits (512 px cut-outs), then Futbin's FC 26 images (which cover
+players new in FC 26), then the dataset's sofifa URL. sofifa's CDN now sits behind a
+Cloudflare check that refuses images embedded on other sites, so it is only a last resort.
+When no source has the player, the card shows a drawn silhouette in his rating tier colour.
 
 **Stack.** A small JSON API (Starlette + Uvicorn) over the same Python modules the
 evaluations use (`src/fcscout/service.py`), and a no-build frontend: plain ES modules,

@@ -69,6 +69,24 @@ def tier(overall: float) -> str:
     return "gold" if overall >= 75 else "silver" if overall >= 65 else "bronze"
 
 
+# Player photos, tried in order by the website until one loads. sofifa's image server
+# blocks embedding (Cloudflare 403), so it comes last. EA's official cut-out portraits
+# (512 px) exist for players who were in FC 25; Futbin's FC 26 cut-outs (160 px) cover
+# most newer players. {id} is the EA/sofifa player id, which all three share.
+FACE_SOURCES = [
+    "https://ratings-images-prod.pulse.ea.com/FC25/full/player-portraits/p{id}.png",
+    "https://cdn.futbin.com/content/fifa26/img/players/{id}.png",
+]
+
+
+def faces(r) -> list[str]:
+    pid = int(r["id"])
+    out = [u.format(id=pid) for u in FACE_SOURCES]
+    if isinstance(r.get("face_url"), str):
+        out.append(r["face_url"])
+    return out
+
+
 def _fold(s: str) -> str:
     return unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode().lower()
 
@@ -177,7 +195,7 @@ def brief(r: pd.Series) -> dict:
         "age": r["age"], "pos": r["primary_pos"], "positions": r.get("positions"),
         "club": r.get("club"), "league": r.get("league"), "nation": r.get("nationality"),
         "overall": r["overall"], "potential": r["potential"], "tier": tier(r["overall"]),
-        "value": r.get("value_eur"), "wage": r.get("wage_eur"), "face": r.get("face_url"),
+        "value": r.get("value_eur"), "wage": r.get("wage_eur"), "face": faces(r)[0], "faces": faces(r),
         "pred_t1": r.get("pred_t1"), "pred_t1_lo": r.get("pred_t1_lo"), "pred_t1_hi": r.get("pred_t1_hi"),
         "pred_t2": r.get("pred_t2"), "pred_t2_lo": r.get("pred_t2_lo"), "pred_t2_hi": r.get("pred_t2_hi"),
         "stay_t1": r.get("surv_t1"), "stay_t2": r.get("surv_t2"),

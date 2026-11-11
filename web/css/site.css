@@ -227,7 +227,14 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .pcard-top { display: flex; justify-content: space-between; align-items: flex-start; transform: translateZ(30px); }
 .pcard-ovr { font-family: var(--display); font-weight: 900; font-size: 2.6rem; line-height: .82; color: var(--c); }
 .pcard-pos { font-family: var(--display); font-weight: 700; font-size: var(--t-lg); line-height: 1; margin-top: 4px; color: var(--chalk-2); }
-.pcard-face { width: 108px; height: 108px; margin: -6px auto 2px; transform: translateZ(40px); }
+.pcard-face { width: 124px; height: 124px; margin: -10px auto 0; transform: translateZ(40px); }
+/* on the big cards the cut-out photo stands on the card, FUT-style: no circle, a soft
+   floodlight glow behind it and a fade into the card at the bottom */
+.pcard-face .face.has-photo { border-radius: 0; overflow: visible;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 35%, transparent), transparent 75%); }
+.pcard-face .face.has-photo img { object-fit: contain; object-position: bottom;
+  -webkit-mask-image: linear-gradient(#000 78%, transparent); mask-image: linear-gradient(#000 78%, transparent);
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35)); }
 .pcard-name {
   font-family: var(--display); font-weight: 800; font-size: var(--t-xl); line-height: 1.02;
   text-align: center; margin-top: 6px; transform: translateZ(24px);
@@ -246,6 +253,7 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 /* face: photo from the dataset, with a drawn fallback */
 .face { position: relative; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: color-mix(in srgb, var(--c, var(--silver)) 16%, var(--turf-2)); }
 .face img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.face.has-photo img { object-position: 50% 12%; }
 .face .fallback {
   position: absolute; inset: 0; display: grid; place-items: end center;
 }
@@ -480,7 +488,7 @@ table.data a:hover { text-decoration: underline; text-decoration-color: var(--fl
   .pcard { min-height: 238px; padding: 10px 9px 9px; }
   .pcard-ovr { font-size: 2rem; }
   .pcard-pos { font-size: var(--t-md); }
-  .pcard-face { width: 74px; height: 74px; margin-top: -2px; }
+  .pcard-face { width: 84px; height: 84px; margin-top: -4px; }
   .pcard-name { font-size: var(--t-lg); }
   .pcard-fc { gap: 8px; width: 92%; margin: 8px auto 10px; }
   .pcard-fc b { font-size: var(--t-lg); }
