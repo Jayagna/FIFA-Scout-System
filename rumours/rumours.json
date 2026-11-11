@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-11T09:19:59+00:00",
+ "generated": "2026-11-11T09:35:30+00:00",
  "window_days": 70,
  "edition": 26,
  "sources": [
@@ -13,7 +13,7 @@
    "to_club": "Liverpool",
    "from_club": "AFC Bournemouth",
    "stage": 1,
-   "score": 0.52,
+   "score": 0.519,
    "n_articles": 7,
    "articles": [
     {
@@ -698,7 +698,7 @@
    "to_club": "Chelsea",
    "from_club": "Liverpool",
    "stage": 1,
-   "score": 0.192,
+   "score": 0.191,
    "n_articles": 2,
    "articles": [
     {
@@ -1139,7 +1139,7 @@
    "to_club": "Liverpool",
    "from_club": "Manchester United",
    "stage": 1,
-   "score": 0.139,
+   "score": 0.138,
    "n_articles": 1,
    "articles": [
     {
@@ -1316,29 +1316,6 @@
    ]
   },
   {
-   "player_id": 241236,
-   "player": "A. Semenyo",
-   "to_club": "Liverpool",
-   "from_club": "AFC Bournemouth",
-   "stage": 1,
-   "score": 0.129,
-   "n_articles": 2,
-   "articles": [
-    {
-     "title": "Liverpool line up double move for Antoine Semenyo , Marc Guehi",
-     "url": "https://thehardtackle.com/transfer-news/2026/10/01/liverpool-line-up-double-move-for-antoine-semenyo-marc-guehi/",
-     "source": "thehardtackle.com",
-     "date": "2026-10-01"
-    },
-    {
-     "title": "Liverpool chief Hughes pushed for Antoine Semenyo transfer",
-     "url": "https://www.caughtoffside.com/2026/09/11/liverpool-chief-hughes-pushed-for-antoine-semenyo-transfer/",
-     "source": "caughtoffside.com",
-     "date": "2026-09-11"
-    }
-   ]
-  },
-  {
    "player_id": 271384,
    "player": "D. Beljo",
    "to_club": "Newcastle United",
@@ -1437,6 +1414,29 @@
      "url": "https://www.caughtoffside.com/2026/11/05/aston-villa-explore-ambitious-move-for-barcelona-star-as-emery-makes-his-interest-clear/",
      "source": "caughtoffside.com",
      "date": "2026-11-06"
+    }
+   ]
+  },
+  {
+   "player_id": 241236,
+   "player": "A. Semenyo",
+   "to_club": "Liverpool",
+   "from_club": "AFC Bournemouth",
+   "stage": 1,
+   "score": 0.128,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Liverpool line up double move for Antoine Semenyo , Marc Guehi",
+     "url": "https://thehardtackle.com/transfer-news/2026/10/01/liverpool-line-up-double-move-for-antoine-semenyo-marc-guehi/",
+     "source": "thehardtackle.com",
+     "date": "2026-10-01"
+    },
+    {
+     "title": "Liverpool chief Hughes pushed for Antoine Semenyo transfer",
+     "url": "https://www.caughtoffside.com/2026/09/11/liverpool-chief-hughes-pushed-for-antoine-semenyo-transfer/",
+     "source": "caughtoffside.com",
+     "date": "2026-09-11"
     }
    ]
   },
