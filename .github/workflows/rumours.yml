@@ -30,6 +30,7 @@ jobs:
         run: python scripts/download_data.py --only players_26.csv
       - name: Fetch and match headlines
         env:
+          PYTHONUNBUFFERED: "1"
           GUARDIAN_API_KEY: ${{ secrets.GUARDIAN_API_KEY }}
         run: python scripts/fetch_rumours.py
       - name: Commit the new feed

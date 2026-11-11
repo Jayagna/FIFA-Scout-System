@@ -319,8 +319,9 @@ python scripts/run_all.py --quick     # download, build, train, evaluate (a few 
 python server.py                      # http://localhost:8000
 ```
 `python scripts/run_all.py` also runs the optimizer backtests (about an hour).
-`python scripts/fetch_rumours.py` refreshes the rumour feed by hand (15–20 minutes, mostly
-waiting between GDELT searches; set `GUARDIAN_API_KEY` to add the Guardian).
+`python scripts/fetch_rumours.py` refreshes the rumour feed by hand (up to ~35 minutes,
+mostly waiting between GDELT searches; `--minutes` sets the budget, after which it saves what
+it has; set `GUARDIAN_API_KEY` to add the Guardian).
 Tests: `python -m pytest -q`.
 
 **Deploy.** `Dockerfile` builds the data and models at image build time and serves on

@@ -13,7 +13,7 @@ matched to players and clubs in the newest edition of the database
 
 Runs every two months from .github/workflows/rumours.yml, or by hand:
     python scripts/fetch_rumours.py                 # last 70 days
-    python scripts/fetch_rumours.py --days 60 --clubs 40
+    python scripts/fetch_rumours.py --days 60 --clubs 40 --minutes 20
 """
 from __future__ import annotations
 
@@ -96,7 +96,8 @@ def parse_gdelt(payload: bytes) -> list[dict]:
 
 
 GDELT_CAP = 250
-BACKOFF = (20, 45, 90, 180)        # seconds to wait after each "slow down"
+BACKOFF = (15, 30, 60)             # seconds to wait after each "slow down" for one search
+PAUSE = 8.0                        # between searches; GDELT asks for at most one per 5 s
 
 
 def gdelt_url(club: str, start: datetime, end: datetime) -> str:
@@ -113,20 +114,29 @@ def _gdelt_time(seen: str | None) -> datetime | None:
         return None
 
 
-def fetch_gdelt(clubs: list[str], start: datetime, end: datetime, get=http_get, pause: float = 6.0,
-                backoff=BACKOFF, sleep=time.sleep) -> list[dict]:
-    """One search per club, newest first. GDELT returns at most 250 articles per search,
-    which for a big club covers only the last few weeks, so when a search comes back
-    full a second one covers the older part of the window. A "slow down" answer is
-    waited out and retried; after three clubs in a row fail anyway, the rest are skipped."""
+def fetch_gdelt(clubs: list[str], start: datetime, end: datetime, get=http_get, pause: float = PAUSE,
+                backoff=BACKOFF, sleep=time.sleep, budget_s: float | None = None,
+                clock=time.monotonic) -> list[dict]:
+    """One search per club (strongest clubs first), newest articles first.
+
+    GDELT answers at most 250 articles per search, which for a big club covers only the
+    last few weeks, so once every club has had its search, clubs whose search came back
+    full get a second one for the older part of the window. "Slow down" answers are
+    waited out and retried. The whole thing stops when budget_s seconds have passed, or
+    after three searches in a row fail, and returns what it has so far: a partial feed
+    beats a run that times out and saves nothing."""
     out, failed_in_a_row = [], 0
+    deadline = clock() + budget_s if budget_s else None
+
+    def time_left() -> bool:
+        return deadline is None or clock() < deadline
 
     def one(url: str) -> list[dict] | None:
         for wait in (*backoff, None):
             try:
                 return parse_gdelt(get(url))
             except RateLimited:
-                if wait is None:
+                if wait is None or (deadline is not None and clock() + wait >= deadline):
                     return None
                 print(f"    rate limited; waiting {wait}s")
                 sleep(wait)
@@ -135,26 +145,39 @@ def fetch_gdelt(clubs: list[str], start: datetime, end: datetime, get=http_get, 
                 return None
         return None
 
-    for i, club in enumerate(clubs):
-        if failed_in_a_row >= 3:
-            print("  GDELT failed for three clubs in a row; skipping the remaining clubs")
-            break
-        got = one(gdelt_url(club, start, end))
-        if got is None:
-            failed_in_a_row += 1
-            print(f"  GDELT {club}: failed")
-            continue
-        failed_in_a_row = 0
+    def run(jobs: list[tuple[str, datetime, datetime]], label: str) -> list[tuple[str, list[dict]]]:
+        nonlocal failed_in_a_row
+        done = []
+        for k, (club, s, e) in enumerate(jobs):
+            if failed_in_a_row >= 3:
+                print("  GDELT failed three times in a row; stopping")
+                break
+            if not time_left():
+                print(f"  GDELT time budget used up after {k} of {len(jobs)} {label} searches")
+                break
+            if k and pause:
+                sleep(pause)
+            got = one(gdelt_url(club, s, e))
+            if got is None:
+                failed_in_a_row += 1
+                print(f"  GDELT {club} ({label}): failed")
+                continue
+            failed_in_a_row = 0
+            print(f"  GDELT {club} ({label}): {len(got)} headlines")
+            out.extend(got)
+            done.append((club, got))
+        return done
+
+    first = run([(c, start, end) for c in clubs], "recent")
+    older = []
+    for club, got in first:
         oldest = min((t for t in map(_gdelt_time, (a["date"] for a in got)) if t), default=None)
         if len(got) >= GDELT_CAP and oldest and oldest - start > timedelta(days=3):
-            if pause:
-                sleep(pause)
-            older = one(gdelt_url(club, start, oldest))
-            got += older or []
-        print(f"  GDELT {club}: {len(got)} headlines")
-        out += got
-        if pause and i < len(clubs) - 1:
-            sleep(pause)               # GDELT asks for at most one request every 5 s
+            older.append((club, start, oldest))
+    if older and failed_in_a_row < 3 and time_left():
+        if pause:
+            sleep(pause)
+        run(older, "older")
     return out
 
 
@@ -196,7 +219,10 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=70, help="how far back to look (GDELT keeps ~3 months)")
     ap.add_argument("--clubs", type=int, default=80, help="search this many of the strongest clubs on GDELT")
+    ap.add_argument("--minutes", type=float, default=35, help="time budget for the GDELT searches")
     args = ap.parse_args(argv)
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(line_buffering=True)  # show progress live in the Actions log
     now = datetime.now(timezone.utc)
     start = now - timedelta(days=args.days)
     cur = latest_players()
@@ -204,7 +230,7 @@ def main(argv=None) -> int:
     strength = ranked[ranked.groupby("club").cumcount() < 16].groupby("club")["overall"].mean()
     clubs = strength.sort_values(ascending=False).head(args.clubs).index.tolist()
     print(f"Searching {len(clubs)} clubs, {start.date()} to {now.date()}")
-    articles = fetch_gdelt(clubs, start, now)
+    articles = fetch_gdelt(clubs, start, now, budget_s=args.minutes * 60)
     sources = ["GDELT"]
     key = os.environ.get("GUARDIAN_API_KEY", "").strip()
     if key:

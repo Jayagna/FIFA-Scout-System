@@ -176,8 +176,8 @@ def test_gdelt_rate_limits_are_waited_out_and_full_searches_continue():
         RateLimited("429"),                                          # club 1: slow down...
         b"Please limit requests to one every 5 seconds",             # ...plain-text version
         {"n": GDELT_CAP, "day": "20261101"},                         # then a full page
-        {"n": 3, "day": "20260915"},                                 # older part of the window
         {"n": 2, "day": "20261020"},                                 # club 2: not full
+        {"n": 3, "day": "20260915"},                                 # club 1 again, older weeks
     ])
 
     def get(url):
@@ -195,7 +195,21 @@ def test_gdelt_rate_limits_are_waited_out_and_full_searches_continue():
                        backoff=(1, 2), sleep=waits.append)
     assert waits == [1, 2] and len(calls) == 5
     assert len(arts) == GDELT_CAP + 3 + 2
-    assert "enddatetime=20261101" in calls[3]                        # second search ends where the first stopped
+    assert "Arsenal" not in calls[4] and "enddatetime=20261101" in calls[4]   # picks up where club 1 stopped
+
+
+def test_gdelt_time_budget_returns_what_it_has():
+    from fetch_rumours import fetch_gdelt
+    now = [0.0]
+
+    def get(url):
+        now[0] += 100                                                # every search takes 100 s
+        return json.dumps({"articles": [{"url": "https://x", "title": "t", "seendate": "20261101T000000Z",
+                                         "domain": "x.com"}]}).encode()
+    start = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    arts = fetch_gdelt([f"Club {i}" for i in range(10)], start, NOW, get=get, pause=0,
+                       budget_s=250, clock=lambda: now[0])
+    assert len(arts) == 3                                            # searches at t=0, 100, 200
 
 
 def test_guardian_needs_a_key(monkeypatch, capsys):
