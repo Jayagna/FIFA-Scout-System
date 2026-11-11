@@ -266,7 +266,7 @@ def fetch_guardian(start: datetime, key: str, get=http_get, max_pages: int = 20)
 def load_seen(path: Path, now: datetime, max_age_days: float) -> dict | None:
     """This cycle's saved headlines, if the last run was recent enough to continue."""
     try:
-        seen = json.loads(path.read_text())
+        seen = json.loads(path.read_text(encoding="utf-8"))
         updated = datetime.fromisoformat(seen["updated"])
         start = datetime.fromisoformat(seen["window_start"])
     except (OSError, ValueError, KeyError, TypeError):
@@ -345,11 +345,11 @@ def main(argv=None) -> int:
     articles = merge_articles(old, new)
     OUT.parent.mkdir(exist_ok=True)
     SEEN.write_text(json.dumps({"window_start": start.isoformat(), "updated": now.isoformat(timespec="seconds"),
-                                "clubs_done": done, "articles": articles}, ensure_ascii=False))
+                                "clubs_done": done, "articles": articles}, ensure_ascii=False), encoding="utf-8")
     feed = build(articles, cur, (now - start).days, sources, now)
     feed["clubs_searched"] = len(done)
     feed["clubs_total"] = len(clubs)
-    OUT.write_text(json.dumps(feed, indent=1, ensure_ascii=False))
+    OUT.write_text(json.dumps(feed, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"{len(done)} of {len(clubs)} clubs searched this cycle; {len(feed['links'])} player-club links "
           f"from {len(articles)} transfer headlines -> rumours/{OUT.name}")
     for link in feed["links"][:15]:

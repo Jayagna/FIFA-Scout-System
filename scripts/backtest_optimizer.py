@@ -161,10 +161,10 @@ def main():
     panel = pd.read_pickle(ROOT / "data/processed/panel.pkl")
     prev = ROOT / "reports/optimizer_metrics_A.json"
     if "--skip-a" in sys.argv and prev.exists():
-        res = json.loads(prev.read_text())
+        res = json.loads(prev.read_text(encoding="utf-8"))
     else:
         res = {"A_milp_vs_greedy": dict(experiment_a(panel), edition=int(panel["edition"].max()))}
-        prev.write_text(json.dumps(res, indent=2))
+        prev.write_text(json.dumps(res, indent=2), encoding="utf-8")
     print(json.dumps(res, indent=2))
     # every variant that was run is reported, not just the best one
     res["B_decision_backtest"] = {}
@@ -172,7 +172,7 @@ def main():
         key = f"h{h}_max_age_{max_age}"
         res["B_decision_backtest"][key] = experiment_b(panel, h=h, max_age=max_age)
         print(key, json.dumps(res["B_decision_backtest"][key], indent=2))
-        (ROOT / "reports/optimizer_metrics.json").write_text(json.dumps(res, indent=2))
+        (ROOT / "reports/optimizer_metrics.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
     print(f"done in {time.time() - t0:.0f}s")
 
 

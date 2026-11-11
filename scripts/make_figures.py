@@ -52,8 +52,8 @@ def rolling_panel(ax, windows, h):
 
 
 def main():
-    roll = json.loads((ROOT / "reports/forecast_rolling.json").read_text())
-    m = json.loads((ROOT / "reports/forecast_metrics.json").read_text())["h2"]
+    roll = json.loads((ROOT / "reports/forecast_rolling.json").read_text(encoding="utf-8"))
+    m = json.loads((ROOT / "reports/forecast_metrics.json").read_text(encoding="utf-8"))["h2"]
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.3), facecolor=SURFACE,
                              gridspec_kw={"width_ratios": [1.35, 1.2, 1]})
     rolling_panel(axes[0], roll["h1"], 1)

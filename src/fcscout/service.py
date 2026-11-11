@@ -115,7 +115,7 @@ def load_rumours(path: Path, cur: pd.DataFrame) -> dict:
     path = Path(path)
     if not path.exists():
         return {}
-    raw = json.loads(path.read_text())
+    raw = json.loads(path.read_text(encoding="utf-8"))
     ids = set(cur["id"].astype(int))
     clubs = set(cur["club"].dropna())
     by_club: dict = {}
@@ -172,7 +172,7 @@ class Store:
                          "similarity_metrics", "rating_formulas"):
                 p = Path(reports_dir) / f"{name}.json"
                 if p.exists():
-                    reports[name] = json.loads(p.read_text())
+                    reports[name] = json.loads(p.read_text(encoding="utf-8"))
         editions = panel.groupby("edition").size().to_dict()
         ranked = cur.dropna(subset=["club"]).sort_values("overall", ascending=False)
         strength = ranked[ranked.groupby("club").cumcount() < 16].groupby("club")["overall"].mean().to_dict()

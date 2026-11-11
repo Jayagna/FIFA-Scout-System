@@ -533,7 +533,7 @@ def load_raw_dir(raw_dir: Path | str, fill: bool = True) -> pd.DataFrame:
 def _load_formulas() -> dict[str, dict[str, float]]:
     import json
     p = Path(__file__).with_name("rating_formulas.json")
-    return json.loads(p.read_text())["weights"] if p.exists() else {}
+    return json.loads(p.read_text(encoding="utf-8"))["weights"] if p.exists() else {}
 
 
 DERIVED_WEIGHTS = _load_formulas()

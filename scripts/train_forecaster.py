@@ -114,10 +114,10 @@ def main():
         joblib.dump(final[h], ROOT / f"models/growth_h{h}.joblib")
 
     (ROOT / "reports").mkdir(exist_ok=True)
-    (ROOT / "reports/forecast_metrics.json").write_text(json.dumps(metrics, indent=2))
+    (ROOT / "reports/forecast_metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     if "--no-rolling" not in sys.argv:
         roll = {f"h{h}": rolling(panel, h, metrics[f"h{h}"]["best_params"]) for h in (1, 2)}
-        (ROOT / "reports/forecast_rolling.json").write_text(json.dumps(roll, indent=2))
+        (ROOT / "reports/forecast_rolling.json").write_text(json.dumps(roll, indent=2), encoding="utf-8")
 
     latest = panel[panel["edition"] == panel["edition"].max()].copy()
     out = latest[["id", "edition", "name", "long_name", "age", "club", "league", "primary_pos",

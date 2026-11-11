@@ -160,7 +160,7 @@ def test_squad_builder_favours_rumoured_player(tmp_path):
             "links": [{"player_id": target, "to_club": "Brentford", "from_club": None, "stage": 3, "score": 0.99,
                        "articles": [{"title": "t", "url": "https://u", "source": "s", "date": "2026-11-01"}]}]}
     path = tmp_path / "rumours.json"
-    path.write_text(json.dumps(feed))
+    path.write_text(json.dumps(feed), encoding="utf-8")
     store.rumours = service.load_rumours(path, store.cur)
     linked = service.squad_plan(store, "Brentford", budget_m=200, max_signings=1, objective="now",
                                 alternatives=0, realistic=False, rumours=True)
@@ -255,9 +255,9 @@ def test_next_run_continues_with_the_clubs_not_yet_searched(monkeypatch, tmp_pat
     assert fetch_rumours.main(["--clubs", "3"]) == 0
     assert fetch_rumours.main(["--clubs", "3"]) == 0
     assert len(asked[1]) == len(asked[0]) - 1 and asked[0][0] not in asked[1]
-    saved = json.loads(seen.read_text())
+    saved = json.loads(seen.read_text(encoding="utf-8"))
     assert len(saved["clubs_done"]) == 2 and len(saved["articles"]) == 2
-    assert json.loads(out.read_text())["clubs_searched"] == 2
+    assert json.loads(out.read_text(encoding="utf-8"))["clubs_searched"] == 2
     assert fetch_rumours.main(["--clubs", "3", "--fresh"]) == 0 and len(asked[2]) == 3
     assert gdelt_terms("Paris Saint-Germain") == ["Paris Saint-Germain", "Paris SG"]
     assert gdelt_terms("1. FC Union Berlin") == ["Union Berlin"]

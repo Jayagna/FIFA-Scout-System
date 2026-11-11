@@ -92,9 +92,9 @@ def main():
         print(f"{name:9s}", "  ".join(f"{ed}: MAE {r['mae']:.2f} (±1: {r['within_1']:.1%})"
                                       for ed, r in report[name].items()))
     (ROOT / "src/fcscout/rating_formulas.json").write_text(
-        json.dumps({"fitted_on": FIT_EDITION, "weights": weights}, indent=1))
+        json.dumps({"fitted_on": FIT_EDITION, "weights": weights}, indent=1), encoding="utf-8")
     (ROOT / "reports").mkdir(exist_ok=True)
-    (ROOT / "reports/rating_formulas.json").write_text(json.dumps(report, indent=1))
+    (ROOT / "reports/rating_formulas.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
 
 
 if __name__ == "__main__":

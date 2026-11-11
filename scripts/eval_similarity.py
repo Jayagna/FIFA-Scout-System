@@ -77,7 +77,7 @@ def main():
         "avg_similarity": float(f["sim"].mean()), "avg_rating_drop": float(f["drop"].mean()),
         "avg_saving_pct": float(f["saving_pct"].mean()),
     }
-    (ROOT / "reports/similarity_metrics.json").write_text(json.dumps(out, indent=2))
+    (ROOT / "reports/similarity_metrics.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
     print(json.dumps(out, indent=2))
 
 

@@ -60,7 +60,7 @@ def main():
         (ROOT / "models").mkdir(exist_ok=True)
         joblib.dump(final[h], ROOT / f"models/survival_h{h}.joblib")
 
-    (ROOT / "reports/survival_metrics.json").write_text(json.dumps(report, indent=2))
+    (ROOT / "reports/survival_metrics.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     latest = panel[panel["edition"] == last]
     fc_path = ROOT / "data/processed/forecasts_latest.csv"
     fc = pd.read_csv(fc_path).drop(columns=["surv_t1", "surv_t2"], errors="ignore")

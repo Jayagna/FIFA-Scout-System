@@ -138,7 +138,7 @@ def main(argv=None) -> int:
                 print(f"  ok       {local}")
     if not only:
         (ROOT / "reports").mkdir(exist_ok=True)
-        (ROOT / "reports/data_sources.json").write_text(json.dumps(provenance, indent=1))
+        (ROOT / "reports/data_sources.json").write_text(json.dumps(provenance, indent=1), encoding="utf-8")
     if failed:
         print(f"\n{len(failed)} file(s) could not be downloaded: {', '.join(failed)}\n"
               "Check your internet connection and run this script again, or put the files "
