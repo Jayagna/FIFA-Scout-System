@@ -5,7 +5,10 @@ name: Refresh transfer rumours
 
 on:
   schedule:
-    - cron: "17 3 1 */2 *"     # 03:17 UTC on the 1st of Jan, Mar, May, Jul, Sep, Nov
+    # 03:17 UTC on the 1st, 2nd and 3rd of Jan, Mar, May, Jul, Sep, Nov: GDELT allows only so
+    # many searches per hour from GitHub's machines, so each run carries on where the
+    # previous one stopped (rumours/headlines.json) until all clubs have been searched
+    - cron: "17 3 1-3 */2 *"
   workflow_dispatch:
 
 permissions:
@@ -37,7 +40,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add rumours/rumours.json
+          git add rumours/rumours.json rumours/headlines.json
           if git diff --cached --quiet; then echo "No change"; exit 0; fi
           git commit -m "Refresh transfer rumours ($(date -u +%Y-%m-%d))"
           # main may have moved while this ran (it takes ~15 min): replay on top and retry

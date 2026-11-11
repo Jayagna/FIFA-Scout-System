@@ -232,12 +232,15 @@ instances: with and without sales, and with expected ratings, objective bonuses,
 removed players, and excluded plans.
 
 ### Transfer rumours (`fcscout/rumours.py`, `scripts/fetch_rumours.py`)
-Every two months (`.github/workflows/rumours.yml`, 1st of Jan/Mar/May/Jul/Sep/Nov) a GitHub
-Action searches two free sources that allow automated access and can be searched over a
-date range, so nothing in between is missed:
+Every two months (`.github/workflows/rumours.yml`, on the 1st, 2nd and 3rd of
+Jan/Mar/May/Jul/Sep/Nov) a GitHub Action searches two free sources that allow automated
+access and can be searched over a date range, so nothing in between is missed:
 * the **GDELT** news index (one search per club, for the 80 strongest clubs, last 70 days;
   GDELT returns at most 250 articles a search, so when a big club's search comes back full a
-  second one covers the older weeks; "slow down" answers are waited out and retried);
+  second one covers the older weeks). GDELT allows few searches per hour from GitHub's shared
+  machines, so each run stops after 35 minutes and saves what it has, and the next run carries
+  on with the clubs not yet searched (`rumours/headlines.json` keeps the cycle's transfer
+  headlines); three runs cover all 80 clubs;
 * **The Guardian's** football transfer-window articles over the same window, when a free API
   key is saved as the repository secret `GUARDIAN_API_KEY` (get one at
   open-platform.theguardian.com/access; the old public test key no longer works).
@@ -245,9 +248,14 @@ date range, so nothing in between is missed:
 Only headline, link, outlet and date are kept, never article text. Each headline is
 matched to players in the newest edition (full names always; a surname alone only for
 well-known players nobody else in the database shares; a one-word name only when the words
-beside it aren't another name, so "JJ Gabriel" isn't Arsenal's Gabriel) and to clubs (database names plus
+beside it aren't another name or a particle, so "JJ Gabriel" isn't Arsenal's Gabriel and "Erik
+ten Hag" isn't a player called Erik) and to clubs (database names plus
 nicknames such as "Man Utd" and "Spurs"). The player's own club is the seller; other clubs
-named are suitors, unless the headline says *from* them. Denials ("reject", "rule out"),
+named are suitors, unless the headline says *from* or *former* them, names them as the
+opponent ("v Sevilla"), or puts them right before the player ("Aston Villa goalkeeper Zion
+Suzuki": his club now, even if the database is a season old); a player named after
+"replace" is the one leaving, not the target, and outlets' own names ("- Man United News And
+Transfer News") are cut off before matching. Denials ("reject", "rule out"),
 outgoing news ("open to selling") and contract news are skipped. Each player–club link is
 scored `1 − exp(−Σ outlet weight × stage × recency)`: outlets from 1.0 (The Athletic, BBC)
 down to 0.2 for tabloids; stage 1.0 for "agreed / medical", 0.8 for "bid / talks", 0.5 for

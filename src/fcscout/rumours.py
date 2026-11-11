@@ -41,10 +41,10 @@ STAGE_WORDS = {
         "set to join", "completes", "complete move", "finalise", "finalize", "seal", "sealed",
         "personal terms"],
     2: ["bid", "offer", "talks", "negotiat", "approach", "swoop", "make move", "submit", "tabled",
-        "opening offer", "enquir", "inquir"],
+        "opening offer", "enquir", "inquir", "contact", "groundwork"],
     1: ["interest", "interested", "target", "eye", "eyes", "eyeing", "monitor", "scout", "want",
         "wants", "keen", "consider", "linked", "chase", "race", "battle", "pursue", "move for",
-        "shortlist", "admire", "transfer", "sign", "signing", "loan"],
+        "shortlist", "admire", "transfer", "sign", "signing", "loan", "tabs on", "close watch"],
 }
 NEGATIVE = ["reject", "turn down", "turned down", "turns down", "snub", "not for sale", "deny", "denies",
             "rule out", "rules out", "ruled out", "no interest", "end interest", "ends interest",
@@ -53,7 +53,20 @@ NEGATIVE = ["reject", "turn down", "turned down", "turns down", "snub", "not for
 # a season old the player's real club may be the one named, so these are skipped
 OUTGOING = ["sell", "sale", "exit", "leave", "leaving", "depart", "offload", "axe", "ditch",
             "renew", "extension", "new contract", "new deal", "contract talks", "release clause"]
-SELLER_CUES = {"from", "leave", "leaves", "leaving", "quit", "quits", "exit", "exits", "depart", "departs"}
+SELLER_CUES = {"from", "leave", "leaves", "leaving", "quit", "quits", "exit", "exits", "depart", "departs",
+               "former", "ex"}
+# a player named right after these is the one being replaced, not the target
+REPLACED_CUES = {"replace", "replaces", "replacing", "replacement", "succeed", "successor", "heir"}
+# "Aston Villa goalkeeper Zion Suzuki": a club right before the player (or before one of
+# these words) is his current club, even when the database is a season out of date
+ROLE_WORDS = {"star", "ace", "defender", "midfielder", "forward", "striker", "winger", "keeper", "goalkeeper",
+              "fullback", "back", "captain", "youngster", "wonderkid", "talent", "playmaker", "centre", "center",
+              "full", "left", "right", "teenager", "loanee", "outcast", "academy", "duo", "pair"}
+# a club named right after these is the opponent in a match, not a suitor
+OPPONENT_CUES = {"v", "vs", "versus", "against"}
+# small words inside names ("Erik ten Hag", "Roberto De Zerbi", "Virgil van Dijk")
+NAME_PARTICLES = {"de", "da", "do", "dos", "das", "di", "del", "della", "der", "den", "van", "von", "ten",
+                  "ter", "le", "la", "el", "al", "bin", "ibn", "mac", "mc", "st", "san"}
 
 # headline names for clubs beyond what can be derived from the database's names
 CLUB_ALIASES = {
@@ -131,16 +144,33 @@ _STAGE_STEMS = tuple(w for ws in STAGE_WORDS.values() for w in ws if " " not in 
 
 
 def _part_of_longer_name(tokens: list[str], i: int, club_words: set) -> bool:
-    """A one-word alias ("Gabriel", "Haaland") whose neighbour is another capitalised
-    word ("JJ Gabriel", "Gabriel Paulista") most likely names someone else."""
+    """A one-word alias ("Gabriel", "Erik") whose neighbour is another capitalised word
+    or a name particle ("JJ Gabriel", "Erik ten Hag") most likely names someone else."""
     for j in (i - 1, i + 1):
         if 0 <= j < len(tokens):
             w = tokens[j]
             low = w.lower()
+            if low in NAME_PARTICLES:
+                return True
             if (w[:1].isupper() and low not in club_words and low not in _NEXT_TO_NAME
                     and not low.startswith(_STAGE_STEMS)):
                 return True
     return False
+
+
+# many outlets append their own name: "... - Man United News And Transfer News",
+# "... | Football", "... – Ghanamma . com"; "Transfer" there says nothing about the story
+_SITE_TAIL = re.compile(r"\s+[-|\u2013\u2014]\s+([^-|\u2013\u2014]{2,60})$")
+
+
+def strip_site_name(title: str) -> str:
+    m = _SITE_TAIL.search(title)
+    if m:
+        tail = m.group(1).lower()
+        if (len(tail.split()) <= 8 and ("news" in tail or ".com" in tail or " . com" in tail
+                                        or tail.strip() in {"football", "sport", "soccer"})):
+            return title[:m.start()]
+    return title
 
 
 def _phrase(t: str) -> str:
@@ -198,7 +228,8 @@ class Matchers:
         return cls(players=players, clubs=clubs,
                    club_of=dict(zip(cur["id"].astype(int), cur["club"])),
                    name_of=dict(zip(cur["id"].astype(int), cur["name"])),
-                   club_words={w for a in clubs for w in a.split()})
+                   club_words={w for a in clubs for w in a.split()
+                               if len(w) >= 3 and w not in NAME_PARTICLES})
 
 
 def _find(text: str, aliases: dict) -> list[tuple[int, str, object]]:
@@ -224,6 +255,7 @@ def stage_of(text: str) -> int:
 
 def parse_headline(title: str, m: Matchers) -> list[dict]:
     """Links found in one headline: [{player_id, to_club, from_club, stage}]."""
+    title = strip_site_name(title)
     text = fold(title)
     if any(f" {w}" in text for w in NEGATIVE + OUTGOING):
         return []
@@ -234,18 +266,23 @@ def parse_headline(title: str, m: Matchers) -> list[dict]:
     players = [(pos, alias, pid) for pos, alias, pid in _find(text, m.players)
                if " " in alias or len(tokens) != len(text.split())
                or not _part_of_longer_name(tokens, len(text[:pos + 1].split()), m.club_words)]
+    players = [(pos, alias, pid) for pos, alias, pid in players
+               if not set(text[:pos].split()[-2:]) & REPLACED_CUES]
     clubs = _find(text, m.clubs)
     if not players or not clubs:
         return []
     out = []
-    for _, _, pid in players[:2]:
+    for ppos, _, pid in players[:2]:
         current = m.club_of.get(pid)
         for pos, alias, club in clubs:
             if club == current:
                 continue
             before = text[:pos].split()[-1:] if text[:pos].strip() else []
-            if before and before[0] in SELLER_CUES:
+            if before and (before[0] in SELLER_CUES or before[0] in OPPONENT_CUES):
                 continue
+            between = text[pos + len(alias) + 1:ppos].split() if ppos > pos else None
+            if between is not None and all(w in ROLE_WORDS for w in between) and len(between) <= 2:
+                continue                                  # "Aston Villa goalkeeper Zion Suzuki"
             out.append({"player_id": int(pid), "to_club": club, "from_club": current, "stage": stage})
     # one link per (player, club)
     seen, uniq = set(), []
@@ -276,7 +313,7 @@ def score_links(articles: list[dict], m: Matchers, now: datetime | None = None,
     seen_titles = set()
     acc: dict[tuple, dict] = {}
     for a in articles:
-        key = fold(a["title"]).strip()
+        key = fold(strip_site_name(a["title"])).strip()
         if not key or key in seen_titles:          # syndicated copies count once
             continue
         seen_titles.add(key)

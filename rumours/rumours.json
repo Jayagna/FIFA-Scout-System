@@ -5,7 +5,7 @@
  "sources": [
   "GDELT"
  ],
- "headlines_scanned": 2354,
+ "headlines_scanned": 168,
  "links": [
   {
    "player_id": 261299,
@@ -13,7 +13,7 @@
    "to_club": "Liverpool",
    "from_club": "AFC Bournemouth",
    "stage": 1,
-   "score": 0.523,
+   "score": 0.52,
    "n_articles": 7,
    "articles": [
     {
@@ -54,8 +54,8 @@
    "to_club": "Arsenal",
    "from_club": "Manchester City",
    "stage": 2,
-   "score": 0.488,
-   "n_articles": 7,
+   "score": 0.469,
+   "n_articles": 6,
    "articles": [
     {
      "title": "Arsenal urged to try Erling Haaland transfer bid",
@@ -70,6 +70,12 @@
      "date": "2026-09-27"
     },
     {
+     "title": "Man City FFP : Arsenal make contact for Erling Haaland transfer after guilty verdict",
+     "url": "https://www.teamtalk.com/arsenal/man-city-ffp-arsenal-make-contact-erling-haaland-transfer-guilty-verdict",
+     "source": "teamtalk.com",
+     "date": "2026-09-27"
+    },
+    {
      "title": "Adrian Durham tells Arsenal to pursue Erling Haaland deal in January",
      "url": "https://thehardtackle.com/reactions/adrian-durham-tells-arsenal-to-pursue-erling-haaland-deal-in-january/",
      "source": "thehardtackle.com",
@@ -80,12 +86,6 @@
      "url": "https://thehardtackle.com/transfer-news/2026/09/30/real-madrid-front-runners-to-sign-erling-haaland-amid-arsenal-links/",
      "source": "thehardtackle.com",
      "date": "2026-09-30"
-    },
-    {
-     "title": "Man City FFP : Arsenal make contact for Erling Haaland transfer after guilty verdict",
-     "url": "https://www.teamtalk.com/arsenal/man-city-ffp-arsenal-make-contact-erling-haaland-transfer-guilty-verdict",
-     "source": "teamtalk.com",
-     "date": "2026-09-27"
     }
    ]
   },
@@ -95,7 +95,7 @@
    "to_club": "Chelsea",
    "from_club": "AFC Bournemouth",
    "stage": 2,
-   "score": 0.467,
+   "score": 0.463,
    "n_articles": 6,
    "articles": [
     {
@@ -131,13 +131,42 @@
    ]
   },
   {
+   "player_id": 233049,
+   "player": "J. Sancho",
+   "to_club": "Getafe CF",
+   "from_club": "Aston Villa",
+   "stage": 2,
+   "score": 0.394,
+   "n_articles": 3,
+   "articles": [
+    {
+     "title": "Getafe submit cut - price contract offer to Jadon Sancho",
+     "url": "https://thehardtackle.com/transfer-news/2026/10/25/getafe-submit-cut-price-contract-offer-to-jadon-sancho/",
+     "source": "thehardtackle.com",
+     "date": "2026-10-25"
+    },
+    {
+     "title": "Jadon Sancho and Dani Parejo in Getafe transfer talks",
+     "url": "https://thepeoplesperson.com/2026/10/16/jadon-sancho-and-dani-parejo-in-getafe-transfer-talks-319311/",
+     "source": "thepeoplesperson.com",
+     "date": "2026-10-16"
+    },
+    {
+     "title": "La Liga : Getafe make offer to sign Jadon Sancho",
+     "url": "https://punchng.com/la-liga-getafe-make-offer-to-sign-sancho/",
+     "source": "punchng.com",
+     "date": "2026-10-15"
+    }
+   ]
+  },
+  {
    "player_id": 246191,
    "player": "J. Alvarez",
    "to_club": "Arsenal",
    "from_club": "Atlético Madrid",
    "stage": 1,
-   "score": 0.461,
-   "n_articles": 9,
+   "score": 0.359,
+   "n_articles": 6,
    "articles": [
     {
      "title": "Arsenal £90m dream Julian Alvarez transfer alternative takes major step as update given",
@@ -177,8 +206,8 @@
    "to_club": "Manchester United",
    "from_club": "Newcastle United",
    "stage": 1,
-   "score": 0.426,
-   "n_articles": 8,
+   "score": 0.324,
+   "n_articles": 5,
    "articles": [
     {
      "title": "Man Utd news : Lewis Hall transfer twist as Antonio Conte conditions emerge",
@@ -213,76 +242,12 @@
    ]
   },
   {
-   "player_id": 233049,
-   "player": "J. Sancho",
-   "to_club": "Getafe CF",
-   "from_club": "Aston Villa",
-   "stage": 2,
-   "score": 0.397,
-   "n_articles": 3,
-   "articles": [
-    {
-     "title": "Getafe submit cut - price contract offer to Jadon Sancho",
-     "url": "https://thehardtackle.com/transfer-news/2026/10/25/getafe-submit-cut-price-contract-offer-to-jadon-sancho/",
-     "source": "thehardtackle.com",
-     "date": "2026-10-25"
-    },
-    {
-     "title": "Jadon Sancho and Dani Parejo in Getafe transfer talks",
-     "url": "https://thepeoplesperson.com/2026/10/16/jadon-sancho-and-dani-parejo-in-getafe-transfer-talks-319311/",
-     "source": "thepeoplesperson.com",
-     "date": "2026-10-16"
-    },
-    {
-     "title": "La Liga : Getafe make offer to sign Jadon Sancho",
-     "url": "https://punchng.com/la-liga-getafe-make-offer-to-sign-sancho/",
-     "source": "punchng.com",
-     "date": "2026-10-15"
-    }
-   ]
-  },
-  {
-   "player_id": 202126,
-   "player": "H. Kane",
-   "to_club": "Tottenham Hotspur",
-   "from_club": "FC Bayern München",
-   "stage": 3,
-   "score": 0.353,
-   "n_articles": 4,
-   "articles": [
-    {
-     "title": "Harry Kane makes feelings clear on Tottenham return as agreement  close  ",
-     "url": "https://www.aol.co.uk/articles/harry-kane-makes-feelings-clear-152741000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-29"
-    },
-    {
-     "title": "Tottenham Harry Kane transfer clause after mega Bayern Munich contract announced",
-     "url": "https://www.aol.co.uk/articles/tottenhams-harry-kane-transfer-clause-211453000.html",
-     "source": "aol.co.uk",
-     "date": "2026-11-05"
-    },
-    {
-     "title": "Tottenham told Harry Kane transfer terms as Bayern Munich scratch Premier League return  itch  ",
-     "url": "https://www.aol.co.uk/articles/tottenham-told-harry-kane-transfer-070000000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-24"
-    },
-    {
-     "title": "Ex - Tottenham boss drops Harry Kane , Barcelona transfer hint as now - or - never target set",
-     "url": "https://www.teamtalk.com/news/harry-kane-barcelona-transfer-hint-bayern-munich-ballon-dor-claim",
-     "source": "teamtalk.com",
-     "date": "2026-09-23"
-    }
-   ]
-  },
-  {
    "player_id": 236015,
    "player": "M. Gibbs-White",
    "to_club": "Tottenham Hotspur",
    "from_club": "Nottingham Forest",
    "stage": 1,
-   "score": 0.323,
+   "score": 0.32,
    "n_articles": 3,
    "articles": [
     {
@@ -311,7 +276,7 @@
    "to_club": "FC Bayern München",
    "from_club": "Liverpool",
    "stage": 2,
-   "score": 0.321,
+   "score": 0.318,
    "n_articles": 4,
    "articles": [
     {
@@ -341,41 +306,12 @@
    ]
   },
   {
-   "player_id": 257188,
-   "player": "Erik",
-   "to_club": "Manchester United",
-   "from_club": "Al Ain",
-   "stage": 1,
-   "score": 0.276,
-   "n_articles": 3,
-   "articles": [
-    {
-     "title": "£57m Man Utd star  not that clever  and should be grateful Erik ten Hag signed him",
-     "url": "https://www.teamtalk.com/manchester-united/lisandro-martinez-erik-ten-hag-man-utd-gordon-strachan-verdict",
-     "source": "teamtalk.com",
-     "date": "2026-10-21"
-    },
-    {
-     "title": "Erik ten Hag almost signed 53 - goal striker for Man Utd and was denied two others",
-     "url": "https://www.aol.co.uk/articles/erik-ten-hag-almost-signed-104000000.html",
-     "source": "aol.co.uk",
-     "date": "2026-10-20"
-    },
-    {
-     "title": "Man United failed to sign Harry Kane , confirms Erik ten Hag",
-     "url": "https://www.caughtoffside.com/2026/10/20/erik-ten-hag-names-player-fought-for-sign-at-man-united/",
-     "source": "caughtoffside.com",
-     "date": "2026-10-20"
-    }
-   ]
-  },
-  {
    "player_id": 246863,
    "player": "F. Nmecha",
    "to_club": "Liverpool",
    "from_club": "Borussia Dortmund",
    "stage": 1,
-   "score": 0.268,
+   "score": 0.266,
    "n_articles": 3,
    "articles": [
     {
@@ -399,47 +335,12 @@
    ]
   },
   {
-   "player_id": 263676,
-   "player": "Roberto",
-   "to_club": "Tottenham Hotspur",
-   "from_club": "RCD Espanyol",
-   "stage": 1,
-   "score": 0.255,
-   "n_articles": 4,
-   "articles": [
-    {
-     "title": "Tottenham reach decision on sacking Roberto De Zerbi as Vinai also drops warning over future transfers",
-     "url": "https://www.teamtalk.com/tottenham-hotspur/decision-reached-sacking-de-zerbi-after-vinai-venkatesham-update",
-     "source": "teamtalk.com",
-     "date": "2026-10-01"
-    },
-    {
-     "title": "Tottenham loanee  pushed away  after Roberto De Zerbi chat calls out pathway problem",
-     "url": "https://www.aol.co.uk/articles/tottenham-loanee-pushed-away-roberto-121225000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-30"
-    },
-    {
-     "title": "Tottenham summer signing slams fitness doubts and explains slow start under Roberto De Zerbi",
-     "url": "https://www.aol.co.uk/articles/tottenham-summer-signing-slams-fitness-144658000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-29"
-    },
-    {
-     "title": "Tottenham : Paul Scholes says big - money ENIC midfield signing will fail under Roberto De Zerbi",
-     "url": "https://www.teamtalk.com/tottenham-hotspur/paul-scholes-mateus-fernandes-tottenham-hotspur-verdict",
-     "source": "teamtalk.com",
-     "date": "2026-09-09"
-    }
-   ]
-  },
-  {
    "player_id": 236015,
    "player": "M. Gibbs-White",
    "to_club": "Manchester United",
    "from_club": "Nottingham Forest",
    "stage": 1,
-   "score": 0.244,
+   "score": 0.243,
    "n_articles": 2,
    "articles": [
     {
@@ -462,7 +363,7 @@
    "to_club": "Real Madrid",
    "from_club": "Manchester City",
    "stage": 2,
-   "score": 0.243,
+   "score": 0.242,
    "n_articles": 3,
    "articles": [
     {
@@ -486,12 +387,58 @@
    ]
   },
   {
+   "player_id": 246863,
+   "player": "F. Nmecha",
+   "to_club": "Manchester United",
+   "from_club": "Borussia Dortmund",
+   "stage": 2,
+   "score": 0.24,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Man United make contact for Felix Nmecha ahead of January , Dortmund lay down their conditions - Man United News And Transfer News",
+     "url": "https://thepeoplesperson.com/2026/10/19/man-united-make-contact-for-felix-nmecha-ahead-of-january-dortmund-lay-down-their-conditions-319694/",
+     "source": "thepeoplesperson.com",
+     "date": "2026-10-20"
+    },
+    {
+     "title": "Manchester United and Liverpool battle for Borussia Dortmund star Felix Nmecha",
+     "url": "https://www.caughtoffside.com/2026/10/19/manchester-united-make-contact-as-liverpool-join-race-for-26-year-old-bundesliga-star/",
+     "source": "caughtoffside.com",
+     "date": "2026-10-19"
+    }
+   ]
+  },
+  {
+   "player_id": 202126,
+   "player": "H. Kane",
+   "to_club": "Tottenham Hotspur",
+   "from_club": "FC Bayern München",
+   "stage": 3,
+   "score": 0.202,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Harry Kane makes feelings clear on Tottenham return as agreement  close  ",
+     "url": "https://www.aol.co.uk/articles/harry-kane-makes-feelings-clear-152741000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-29"
+    },
+    {
+     "title": "Tottenham told Harry Kane transfer terms as Bayern Munich scratch Premier League return  itch  ",
+     "url": "https://www.aol.co.uk/articles/tottenham-told-harry-kane-transfer-070000000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-24"
+    }
+   ]
+  },
+  {
    "player_id": 233419,
    "player": "Raphinha",
    "to_club": "Atlético Madrid",
    "from_club": "FC Barcelona",
    "stage": 2,
-   "score": 0.199,
+   "score": 0.198,
    "n_articles": 1,
    "articles": [
     {
@@ -508,7 +455,7 @@
    "to_club": "Atlético Madrid",
    "from_club": "FC Barcelona",
    "stage": 2,
-   "score": 0.199,
+   "score": 0.198,
    "n_articles": 1,
    "articles": [
     {
@@ -525,7 +472,7 @@
    "to_club": "Liverpool",
    "from_club": "FC Barcelona",
    "stage": 1,
-   "score": 0.195,
+   "score": 0.194,
    "n_articles": 2,
    "articles": [
     {
@@ -548,7 +495,7 @@
    "to_club": "Manchester United",
    "from_club": "Crystal Palace",
    "stage": 1,
-   "score": 0.195,
+   "score": 0.193,
    "n_articles": 2,
    "articles": [
     {
@@ -571,7 +518,7 @@
    "to_club": "Chelsea",
    "from_club": "Liverpool",
    "stage": 1,
-   "score": 0.194,
+   "score": 0.192,
    "n_articles": 2,
    "articles": [
     {
@@ -585,29 +532,6 @@
      "url": "https://www.caughtoffside.com/2026/10/18/chelsea-face-major-obstacle-in-pursuit-of-liverpool-star-ahead-of-2027/",
      "source": "caughtoffside.com",
      "date": "2026-10-18"
-    }
-   ]
-  },
-  {
-   "player_id": 246863,
-   "player": "F. Nmecha",
-   "to_club": "Manchester United",
-   "from_club": "Borussia Dortmund",
-   "stage": 1,
-   "score": 0.192,
-   "n_articles": 2,
-   "articles": [
-    {
-     "title": "Man United make contact for Felix Nmecha ahead of January , Dortmund lay down their conditions - Man United News And Transfer News",
-     "url": "https://thepeoplesperson.com/2026/10/19/man-united-make-contact-for-felix-nmecha-ahead-of-january-dortmund-lay-down-their-conditions-319694/",
-     "source": "thepeoplesperson.com",
-     "date": "2026-10-20"
-    },
-    {
-     "title": "Manchester United and Liverpool battle for Borussia Dortmund star Felix Nmecha",
-     "url": "https://www.caughtoffside.com/2026/10/19/manchester-united-make-contact-as-liverpool-join-race-for-26-year-old-bundesliga-star/",
-     "source": "caughtoffside.com",
-     "date": "2026-10-19"
     }
    ]
   },
@@ -663,7 +587,7 @@
    "to_club": "Tottenham Hotspur",
    "from_club": "SC Freiburg",
    "stage": 1,
-   "score": 0.188,
+   "score": 0.186,
    "n_articles": 2,
    "articles": [
     {
@@ -686,7 +610,7 @@
    "to_club": "Manchester United",
    "from_club": "TSG 1899 Hoffenheim",
    "stage": 1,
-   "score": 0.184,
+   "score": 0.182,
    "n_articles": 2,
    "articles": [
     {
@@ -709,7 +633,7 @@
    "to_club": "Arsenal",
    "from_club": "Aston Villa",
    "stage": 1,
-   "score": 0.181,
+   "score": 0.179,
    "n_articles": 2,
    "articles": [
     {
@@ -732,7 +656,7 @@
    "to_club": "Newcastle United",
    "from_club": "AC Milan",
    "stage": 2,
-   "score": 0.169,
+   "score": 0.168,
    "n_articles": 1,
    "articles": [
     {
@@ -749,7 +673,7 @@
    "to_club": "Manchester United",
    "from_club": "FC Bayern München",
    "stage": 1,
-   "score": 0.163,
+   "score": 0.162,
    "n_articles": 2,
    "articles": [
     {
@@ -772,7 +696,7 @@
    "to_club": "AC Milan",
    "from_club": "Manchester United",
    "stage": 2,
-   "score": 0.162,
+   "score": 0.161,
    "n_articles": 1,
    "articles": [
     {
@@ -789,7 +713,7 @@
    "to_club": "Inter",
    "from_club": "Manchester United",
    "stage": 2,
-   "score": 0.162,
+   "score": 0.161,
    "n_articles": 1,
    "articles": [
     {
@@ -801,35 +725,12 @@
    ]
   },
   {
-   "player_id": 239837,
-   "player": "A. Mac Allister",
-   "to_club": "Atlético Madrid",
-   "from_club": "Liverpool",
-   "stage": 3,
-   "score": 0.158,
-   "n_articles": 2,
-   "articles": [
-    {
-     "title": "Liverpool 2 - 1 Atletico Madrid : Alexis Mac Allister goal completes Champions League comeback",
-     "url": "https://www.aol.co.uk/articles/liverpool-2-1-atletico-madrid-214938000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-09"
-    },
-    {
-     "title": "Atletico Madrid eyeing 2027 move for Alexis Mac Allister",
-     "url": "https://thehardtackle.com/transfer-news/2026/09/09/atletico-madrid-eyeing-2027-move-for-alexis-mac-allister/",
-     "source": "thehardtackle.com",
-     "date": "2026-09-09"
-    }
-   ]
-  },
-  {
    "player_id": 231410,
    "player": "Brahim",
    "to_club": "Al Ittihad",
    "from_club": "Real Madrid",
    "stage": 2,
-   "score": 0.156,
+   "score": 0.154,
    "n_articles": 1,
    "articles": [
     {
@@ -869,7 +770,7 @@
    "to_club": "FC Barcelona",
    "from_club": "Real Betis Balompié",
    "stage": 2,
-   "score": 0.151,
+   "score": 0.15,
    "n_articles": 1,
    "articles": [
     {
@@ -886,7 +787,7 @@
    "to_club": "Chelsea",
    "from_club": "Real Betis Balompié",
    "stage": 2,
-   "score": 0.151,
+   "score": 0.15,
    "n_articles": 1,
    "articles": [
     {
@@ -903,7 +804,7 @@
    "to_club": "Manchester United",
    "from_club": "Real Betis Balompié",
    "stage": 2,
-   "score": 0.151,
+   "score": 0.15,
    "n_articles": 1,
    "articles": [
     {
@@ -911,6 +812,23 @@
      "url": "https://thehardtackle.com/transfer-news/2026/10/17/barcelona-open-talks-to-sign-natan-face-chelsea-manchester-united-battle/",
      "source": "thehardtackle.com",
      "date": "2026-10-17"
+    }
+   ]
+  },
+  {
+   "player_id": 245902,
+   "player": "T. Parrott",
+   "to_club": "Manchester United",
+   "from_club": "AZ Alkmaar",
+   "stage": 2,
+   "score": 0.148,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Troy Parrott : Man United quietly laying groundwork for former Spurs striker Premier League return - Man United News And Transfer News",
+     "url": "https://thepeoplesperson.com/2026/10/16/troy-parrott-man-united-quietly-laying-groundwork-for-former-spurs-strikers-premier-league-return-319318/",
+     "source": "thepeoplesperson.com",
+     "date": "2026-10-16"
     }
    ]
   },
@@ -943,7 +861,7 @@
    "to_club": "AC Milan",
    "from_club": "Liverpool",
    "stage": 1,
-   "score": 0.143,
+   "score": 0.142,
    "n_articles": 2,
    "articles": [
     {
@@ -957,29 +875,6 @@
      "url": "https://www.caughtoffside.com/2026/09/27/virgil-van-dijk-ac-milan-transfer-claim/",
      "source": "caughtoffside.com",
      "date": "2026-09-27"
-    }
-   ]
-  },
-  {
-   "player_id": 246191,
-   "player": "J. Alvarez",
-   "to_club": "FC Barcelona",
-   "from_club": "Atlético Madrid",
-   "stage": 2,
-   "score": 0.14,
-   "n_articles": 2,
-   "articles": [
-    {
-     "title": "  We made a formal and correct offer  - Deco opens up on Barcelona Julian Alvarez chase",
-     "url": "https://www.barcablaugranes.com/fc-barcelona-transfer-rumors-news/132056/deco-opens-julian-alvarez-chase",
-     "source": "barcablaugranes.com",
-     "date": "2026-09-10"
-    },
-    {
-     "title": "Barcelona admission could give Arsenal Julian Alvarez transfer edge",
-     "url": "https://www.aol.co.uk/articles/barcelona-admission-could-arsenal-julian-133405000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-10"
     }
    ]
   },
@@ -1023,7 +918,7 @@
    "to_club": "Arsenal",
    "from_club": "Bayer 04 Leverkusen",
    "stage": 1,
-   "score": 0.135,
+   "score": 0.134,
    "n_articles": 2,
    "articles": [
     {
@@ -1037,52 +932,6 @@
      "url": "https://thehardtackle.com/transfer-news/2026/09/22/atletico-madrid-rival-arsenal-manchester-city-manchester-united-in-ibrahim-maza-chase/",
      "source": "thehardtackle.com",
      "date": "2026-09-22"
-    }
-   ]
-  },
-  {
-   "player_id": 236015,
-   "player": "M. Gibbs-White",
-   "to_club": "Chelsea",
-   "from_club": "Nottingham Forest",
-   "stage": 1,
-   "score": 0.133,
-   "n_articles": 2,
-   "articles": [
-    {
-     "title": "Bayern Munich leading race for Morgan Gibbs - White , with Chelsea still in the picture Chelsea Fc Transfer News",
-     "url": "https://www.el-balad.com/17053257",
-     "source": "el-balad.com",
-     "date": "2026-09-24"
-    },
-    {
-     "title": "Chelsea transfer news : Regret over failed summer move , Gibbs - White competition , Blues in wonderkid race",
-     "url": "https://www.aol.co.uk/articles/chelsea-transfer-news-regret-over-173352000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-23"
-    }
-   ]
-  },
-  {
-   "player_id": 202126,
-   "player": "H. Kane",
-   "to_club": "FC Barcelona",
-   "from_club": "FC Bayern München",
-   "stage": 1,
-   "score": 0.133,
-   "n_articles": 2,
-   "articles": [
-    {
-     "title": "Michael Owen reveals Harry Kane Barcelona , Real Madrid transfer  temptation  ",
-     "url": "https://www.teamtalk.com/news/michael-owen-reveals-harry-kanes-barcelona-real-madrid-transfer-temptation-exclusive",
-     "source": "teamtalk.com",
-     "date": "2026-09-24"
-    },
-    {
-     "title": "Ex - Tottenham boss drops Harry Kane , Barcelona transfer hint as now - or - never target set",
-     "url": "https://www.teamtalk.com/news/harry-kane-barcelona-transfer-hint-bayern-munich-ballon-dor-claim",
-     "source": "teamtalk.com",
-     "date": "2026-09-23"
     }
    ]
   },
@@ -1104,12 +953,58 @@
    ]
   },
   {
+   "player_id": 202126,
+   "player": "H. Kane",
+   "to_club": "FC Barcelona",
+   "from_club": "FC Bayern München",
+   "stage": 1,
+   "score": 0.132,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Michael Owen reveals Harry Kane Barcelona , Real Madrid transfer  temptation  ",
+     "url": "https://www.teamtalk.com/news/michael-owen-reveals-harry-kanes-barcelona-real-madrid-transfer-temptation-exclusive",
+     "source": "teamtalk.com",
+     "date": "2026-09-24"
+    },
+    {
+     "title": "Ex - Tottenham boss drops Harry Kane , Barcelona transfer hint as now - or - never target set",
+     "url": "https://www.teamtalk.com/news/harry-kane-barcelona-transfer-hint-bayern-munich-ballon-dor-claim",
+     "source": "teamtalk.com",
+     "date": "2026-09-23"
+    }
+   ]
+  },
+  {
+   "player_id": 236015,
+   "player": "M. Gibbs-White",
+   "to_club": "Chelsea",
+   "from_club": "Nottingham Forest",
+   "stage": 1,
+   "score": 0.132,
+   "n_articles": 2,
+   "articles": [
+    {
+     "title": "Bayern Munich leading race for Morgan Gibbs - White , with Chelsea still in the picture Chelsea Fc Transfer News",
+     "url": "https://www.el-balad.com/17053257",
+     "source": "el-balad.com",
+     "date": "2026-09-24"
+    },
+    {
+     "title": "Chelsea transfer news : Regret over failed summer move , Gibbs - White competition , Blues in wonderkid race",
+     "url": "https://www.aol.co.uk/articles/chelsea-transfer-news-regret-over-173352000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-23"
+    }
+   ]
+  },
+  {
    "player_id": 270821,
    "player": "M. Penders",
    "to_club": "Real Madrid",
    "from_club": "RC Strasbourg Alsace",
    "stage": 1,
-   "score": 0.13,
+   "score": 0.129,
    "n_articles": 1,
    "articles": [
     {
@@ -1126,24 +1021,7 @@
    "to_club": "Arsenal",
    "from_club": "Gil Vicente FC",
    "stage": 1,
-   "score": 0.13,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Arsenal need to pay £33 - 42m to sign Monza striker Gustavo Varela in January",
-     "url": "https://arsenalnews.co.uk/2026/11/05/arsenal-need-to-pay-33-42m-to-sign-monza-striker-gustavo-varela-in-january/",
-     "source": "arsenalnews.co.uk",
-     "date": "2026-11-06"
-    }
-   ]
-  },
-  {
-   "player_id": 72337,
-   "player": "Gustavo Varela",
-   "to_club": "Monza",
-   "from_club": "Gil Vicente FC",
-   "stage": 1,
-   "score": 0.13,
+   "score": 0.129,
    "n_articles": 1,
    "articles": [
     {
@@ -1160,7 +1038,7 @@
    "to_club": "Liverpool",
    "from_club": "AFC Bournemouth",
    "stage": 1,
-   "score": 0.13,
+   "score": 0.129,
    "n_articles": 2,
    "articles": [
     {
@@ -1183,7 +1061,7 @@
    "to_club": "Newcastle United",
    "from_club": "Dinamo Zagreb",
    "stage": 1,
-   "score": 0.13,
+   "score": 0.129,
    "n_articles": 1,
    "articles": [
     {
@@ -1200,7 +1078,7 @@
    "to_club": "Chelsea",
    "from_club": "Dinamo Zagreb",
    "stage": 1,
-   "score": 0.13,
+   "score": 0.129,
    "n_articles": 1,
    "articles": [
     {
@@ -1217,7 +1095,7 @@
    "to_club": "Arsenal",
    "from_club": "RB Leipzig",
    "stage": 1,
-   "score": 0.13,
+   "score": 0.129,
    "n_articles": 1,
    "articles": [
     {
@@ -1234,7 +1112,7 @@
    "to_club": "FC Bayern München",
    "from_club": "Paris Saint-Germain",
    "stage": 1,
-   "score": 0.13,
+   "score": 0.129,
    "n_articles": 1,
    "articles": [
     {
@@ -1251,7 +1129,7 @@
    "to_club": "Chelsea",
    "from_club": "Paris Saint-Germain",
    "stage": 1,
-   "score": 0.13,
+   "score": 0.129,
    "n_articles": 1,
    "articles": [
     {
@@ -1259,23 +1137,6 @@
      "url": "https://www.caughtoffside.com/2026/11/06/bayern-munich-wont-rival-chelsea-for-desire-doue-transfer/",
      "source": "caughtoffside.com",
      "date": "2026-11-06"
-    }
-   ]
-  },
-  {
-   "player_id": 72337,
-   "player": "Gustavo Varela",
-   "to_club": "Chelsea",
-   "from_club": "Gil Vicente FC",
-   "stage": 1,
-   "score": 0.129,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Why Chelsea rumoured interest in Gustavo Varela makes no sense",
-     "url": "https://theprideoflondon.com/why-chelsea-s-rumoured-interest-in-gustavo-varela-makes-no-sense",
-     "source": "theprideoflondon.com",
-     "date": "2026-11-05"
     }
    ]
   },
@@ -1293,6 +1154,23 @@
      "url": "https://www.caughtoffside.com/2026/11/05/aston-villa-explore-ambitious-move-for-barcelona-star-as-emery-makes-his-interest-clear/",
      "source": "caughtoffside.com",
      "date": "2026-11-06"
+    }
+   ]
+  },
+  {
+   "player_id": 72337,
+   "player": "Gustavo Varela",
+   "to_club": "Chelsea",
+   "from_club": "Gil Vicente FC",
+   "stage": 1,
+   "score": 0.127,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Why Chelsea rumoured interest in Gustavo Varela makes no sense",
+     "url": "https://theprideoflondon.com/why-chelsea-s-rumoured-interest-in-gustavo-varela-makes-no-sense",
+     "source": "theprideoflondon.com",
+     "date": "2026-11-05"
     }
    ]
   },
@@ -1337,12 +1215,29 @@
    ]
   },
   {
+   "player_id": 244260,
+   "player": "Dani Olmo",
+   "to_club": "Tottenham Hotspur",
+   "from_club": "FC Barcelona",
+   "stage": 2,
+   "score": 0.112,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Tottenham contacted over Dani Olmo transfer ahead of January window",
+     "url": "https://www.caughtoffside.com/2026/09/27/tottenham-dani-olmo-transfer-january/",
+     "source": "caughtoffside.com",
+     "date": "2026-09-27"
+    }
+   ]
+  },
+  {
    "player_id": 247827,
    "player": "M. Olise",
    "to_club": "Liverpool",
    "from_club": "FC Bayern München",
    "stage": 1,
-   "score": 0.11,
+   "score": 0.108,
    "n_articles": 2,
    "articles": [
     {
@@ -1365,7 +1260,7 @@
    "to_club": "Arsenal",
    "from_club": "Real Madrid",
    "stage": 1,
-   "score": 0.109,
+   "score": 0.108,
    "n_articles": 1,
    "articles": [
     {
@@ -1382,7 +1277,7 @@
    "to_club": "Atlético Madrid",
    "from_club": "Manchester United",
    "stage": 1,
-   "score": 0.108,
+   "score": 0.107,
    "n_articles": 1,
    "articles": [
     {
@@ -1399,7 +1294,7 @@
    "to_club": "Trabzonspor",
    "from_club": "Liverpool",
    "stage": 1,
-   "score": 0.105,
+   "score": 0.104,
    "n_articles": 1,
    "articles": [
     {
@@ -1416,7 +1311,7 @@
    "to_club": "Arsenal",
    "from_club": "Atlético Madrid",
    "stage": 1,
-   "score": 0.105,
+   "score": 0.104,
    "n_articles": 1,
    "articles": [
     {
@@ -1433,7 +1328,7 @@
    "to_club": "Everton",
    "from_club": "Tottenham Hotspur",
    "stage": 1,
-   "score": 0.105,
+   "score": 0.104,
    "n_articles": 1,
    "articles": [
     {
@@ -1450,7 +1345,7 @@
    "to_club": "Tottenham Hotspur",
    "from_club": "Brentford",
    "stage": 1,
-   "score": 0.104,
+   "score": 0.102,
    "n_articles": 1,
    "articles": [
     {
@@ -1467,7 +1362,7 @@
    "to_club": "Aston Villa",
    "from_club": "Brentford",
    "stage": 1,
-   "score": 0.104,
+   "score": 0.102,
    "n_articles": 1,
    "articles": [
     {
@@ -1479,29 +1374,12 @@
    ]
   },
   {
-   "player_id": 236401,
-   "player": "N. Mazraoui",
-   "to_club": "Como",
-   "from_club": "Manchester United",
-   "stage": 1,
-   "score": 0.104,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "0 tackles , 67 % duels lost , 1 error : Noussair Mazraoui appeared to down tools vs Como - Man United News And Transfer News",
-     "url": "https://thepeoplesperson.com/2026/10/21/0-tackles-67-duels-lost-1-error-noussair-mazraoui-appeared-to-down-tools-vs-como-319891/",
-     "source": "thepeoplesperson.com",
-     "date": "2026-10-22"
-    }
-   ]
-  },
-  {
    "player_id": 257400,
    "player": "Y. Ayari",
    "to_club": "Arsenal",
    "from_club": "Brighton & Hove Albion",
    "stage": 1,
-   "score": 0.104,
+   "score": 0.102,
    "n_articles": 1,
    "articles": [
     {
@@ -1518,7 +1396,7 @@
    "to_club": "Manchester United",
    "from_club": "Brighton & Hove Albion",
    "stage": 1,
-   "score": 0.104,
+   "score": 0.102,
    "n_articles": 1,
    "articles": [
     {
@@ -1530,29 +1408,12 @@
    ]
   },
   {
-   "player_id": 254088,
-   "player": "Amad",
-   "to_club": "Como",
-   "from_club": "Manchester United",
-   "stage": 1,
-   "score": 0.104,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Most touches in opposition box , 5 take - ons , 1 assist : Man United Amad salvages some pride as Como dish out merciless 4 - 1 thrashing - Man United News And Transfer News",
-     "url": "https://thepeoplesperson.com/2026/10/21/most-touches-in-opposition-box-5-take-ons-1-assist-man-uniteds-amad-salvages-some-pride-as-como-dish-out-merciless-4-1-thrashing-319875/",
-     "source": "thepeoplesperson.com",
-     "date": "2026-10-22"
-    }
-   ]
-  },
-  {
    "player_id": 275328,
    "player": "C. Uzun",
    "to_club": "Arsenal",
    "from_club": "Eintracht Frankfurt",
    "stage": 1,
-   "score": 0.103,
+   "score": 0.102,
    "n_articles": 1,
    "articles": [
     {
@@ -1598,40 +1459,6 @@
    ]
   },
   {
-   "player_id": 74462,
-   "player": "Gerard Martín",
-   "to_club": "Liverpool",
-   "from_club": "FC Barcelona",
-   "stage": 1,
-   "score": 0.101,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Liverpool and Tottenham interested in signing Barcelona star Gerard Martin",
-     "url": "https://www.caughtoffside.com/2026/10/19/liverpool-and-tottenham-track-versatile-la-liga-defender-with-e100m-release-clause/",
-     "source": "caughtoffside.com",
-     "date": "2026-10-19"
-    }
-   ]
-  },
-  {
-   "player_id": 74462,
-   "player": "Gerard Martín",
-   "to_club": "Tottenham Hotspur",
-   "from_club": "FC Barcelona",
-   "stage": 1,
-   "score": 0.101,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Liverpool and Tottenham interested in signing Barcelona star Gerard Martin",
-     "url": "https://www.caughtoffside.com/2026/10/19/liverpool-and-tottenham-track-versatile-la-liga-defender-with-e100m-release-clause/",
-     "source": "caughtoffside.com",
-     "date": "2026-10-19"
-    }
-   ]
-  },
-  {
    "player_id": 278901,
    "player": "A. Bouaddi",
    "to_club": "Manchester United",
@@ -1649,12 +1476,46 @@
    ]
   },
   {
+   "player_id": 74462,
+   "player": "Gerard Martín",
+   "to_club": "Liverpool",
+   "from_club": "FC Barcelona",
+   "stage": 1,
+   "score": 0.099,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Liverpool and Tottenham interested in signing Barcelona star Gerard Martin",
+     "url": "https://www.caughtoffside.com/2026/10/19/liverpool-and-tottenham-track-versatile-la-liga-defender-with-e100m-release-clause/",
+     "source": "caughtoffside.com",
+     "date": "2026-10-19"
+    }
+   ]
+  },
+  {
+   "player_id": 74462,
+   "player": "Gerard Martín",
+   "to_club": "Tottenham Hotspur",
+   "from_club": "FC Barcelona",
+   "stage": 1,
+   "score": 0.099,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Liverpool and Tottenham interested in signing Barcelona star Gerard Martin",
+     "url": "https://www.caughtoffside.com/2026/10/19/liverpool-and-tottenham-track-versatile-la-liga-defender-with-e100m-release-clause/",
+     "source": "caughtoffside.com",
+     "date": "2026-10-19"
+    }
+   ]
+  },
+  {
    "player_id": 229188,
    "player": "V. Pavlidis",
    "to_club": "Tottenham Hotspur",
    "from_club": "SL Benfica",
    "stage": 1,
-   "score": 0.101,
+   "score": 0.099,
    "n_articles": 1,
    "articles": [
     {
@@ -1668,27 +1529,10 @@
   {
    "player_id": 272505,
    "player": "Endrick",
-   "to_club": "Sevilla FC",
-   "from_club": "Real Madrid",
-   "stage": 1,
-   "score": 0.1,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Real Madrid media react to Endrick display v Sevilla as Man Utd transfer decision reached",
-     "url": "https://www.teamtalk.com/manchester-united/endrick-real-madrid-man-utd-2027-january-transfer-decision-reached",
-     "source": "teamtalk.com",
-     "date": "2026-10-19"
-    }
-   ]
-  },
-  {
-   "player_id": 272505,
-   "player": "Endrick",
    "to_club": "Manchester United",
    "from_club": "Real Madrid",
    "stage": 1,
-   "score": 0.1,
+   "score": 0.099,
    "n_articles": 1,
    "articles": [
     {
@@ -1705,7 +1549,7 @@
    "to_club": "FC Barcelona",
    "from_club": "VfB Stuttgart",
    "stage": 1,
-   "score": 0.1,
+   "score": 0.099,
    "n_articles": 1,
    "articles": [
     {
@@ -1722,7 +1566,7 @@
    "to_club": "Arsenal",
    "from_club": "Paris Saint-Germain",
    "stage": 1,
-   "score": 0.1,
+   "score": 0.099,
    "n_articles": 1,
    "articles": [
     {
@@ -1734,12 +1578,29 @@
    ]
   },
   {
+   "player_id": 71418,
+   "player": "B. Touré",
+   "to_club": "Aston Villa",
+   "from_club": "TSG 1899 Hoffenheim",
+   "stage": 1,
+   "score": 0.097,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Manchester United face Aston Villa , Tottenham battle in Bazoumana Toure race",
+     "url": "https://thehardtackle.com/transfer-news/2026/10/17/manchester-united-face-aston-villa-tottenham-battle-in-bazoumana-toure-race/",
+     "source": "thehardtackle.com",
+     "date": "2026-10-17"
+    }
+   ]
+  },
+  {
    "player_id": 237238,
    "player": "S. McTominay",
    "to_club": "Real Madrid",
    "from_club": "Napoli",
    "stage": 1,
-   "score": 0.098,
+   "score": 0.097,
    "n_articles": 1,
    "articles": [
     {
@@ -1756,7 +1617,7 @@
    "to_club": "Arsenal",
    "from_club": "Napoli",
    "stage": 1,
-   "score": 0.098,
+   "score": 0.097,
    "n_articles": 1,
    "articles": [
     {
@@ -1802,23 +1663,6 @@
    ]
   },
   {
-   "player_id": 71418,
-   "player": "B. Touré",
-   "to_club": "Aston Villa",
-   "from_club": "TSG 1899 Hoffenheim",
-   "stage": 1,
-   "score": 0.097,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Manchester United face Aston Villa , Tottenham battle in Bazoumana Toure race",
-     "url": "https://thehardtackle.com/transfer-news/2026/10/17/manchester-united-face-aston-villa-tottenham-battle-in-bazoumana-toure-race/",
-     "source": "thehardtackle.com",
-     "date": "2026-10-17"
-    }
-   ]
-  },
-  {
    "player_id": 260592,
    "player": "B. Šeško",
    "to_club": "Tottenham Hotspur",
@@ -1858,7 +1702,7 @@
    "to_club": "Liverpool",
    "from_club": "Brighton & Hove Albion",
    "stage": 1,
-   "score": 0.096,
+   "score": 0.095,
    "n_articles": 1,
    "articles": [
     {
@@ -1870,63 +1714,12 @@
    ]
   },
   {
-   "player_id": 71418,
-   "player": "B. Touré",
-   "to_club": "Newcastle United",
-   "from_club": "TSG 1899 Hoffenheim",
-   "stage": 1,
-   "score": 0.096,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Manchester United keen on signing Newcastle star Bazoumana Toure",
-     "url": "https://www.caughtoffside.com/2026/10/16/manchester-united-monitor-43m-newcastle-ace-amid-growing-premier-league-interest/",
-     "source": "caughtoffside.com",
-     "date": "2026-10-16"
-    }
-   ]
-  },
-  {
-   "player_id": 245902,
-   "player": "T. Parrott",
-   "to_club": "Manchester United",
-   "from_club": "AZ Alkmaar",
-   "stage": 1,
-   "score": 0.096,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Troy Parrott : Man United quietly laying groundwork for former Spurs striker Premier League return - Man United News And Transfer News",
-     "url": "https://thepeoplesperson.com/2026/10/16/troy-parrott-man-united-quietly-laying-groundwork-for-former-spurs-strikers-premier-league-return-319318/",
-     "source": "thepeoplesperson.com",
-     "date": "2026-10-16"
-    }
-   ]
-  },
-  {
-   "player_id": 245902,
-   "player": "T. Parrott",
-   "to_club": "Tottenham Hotspur",
-   "from_club": "AZ Alkmaar",
-   "stage": 1,
-   "score": 0.096,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Troy Parrott : Man United quietly laying groundwork for former Spurs striker Premier League return - Man United News And Transfer News",
-     "url": "https://thepeoplesperson.com/2026/10/16/troy-parrott-man-united-quietly-laying-groundwork-for-former-spurs-strikers-premier-league-return-319318/",
-     "source": "thepeoplesperson.com",
-     "date": "2026-10-16"
-    }
-   ]
-  },
-  {
    "player_id": 239301,
    "player": "L. Martínez",
    "to_club": "Chelsea",
    "from_club": "Manchester United",
    "stage": 1,
-   "score": 0.096,
+   "score": 0.095,
    "n_articles": 1,
    "articles": [
     {
@@ -1943,7 +1736,7 @@
    "to_club": "Aston Villa",
    "from_club": "Napoli",
    "stage": 1,
-   "score": 0.096,
+   "score": 0.095,
    "n_articles": 1,
    "articles": [
     {
@@ -1960,7 +1753,7 @@
    "to_club": "Manchester United",
    "from_club": "Napoli",
    "stage": 1,
-   "score": 0.096,
+   "score": 0.095,
    "n_articles": 1,
    "articles": [
     {
@@ -1977,7 +1770,7 @@
    "to_club": "Tottenham Hotspur",
    "from_club": "Manchester City",
    "stage": 1,
-   "score": 0.095,
+   "score": 0.094,
    "n_articles": 1,
    "articles": [
     {
@@ -1994,7 +1787,7 @@
    "to_club": "Everton",
    "from_club": "AEK Athens",
    "stage": 2,
-   "score": 0.079,
+   "score": 0.078,
    "n_articles": 1,
    "articles": [
     {
@@ -2011,7 +1804,7 @@
    "to_club": "Everton",
    "from_club": "AS Monaco",
    "stage": 2,
-   "score": 0.079,
+   "score": 0.078,
    "n_articles": 1,
    "articles": [
     {
@@ -2028,7 +1821,7 @@
    "to_club": "FC Barcelona",
    "from_club": "Manchester City",
    "stage": 1,
-   "score": 0.078,
+   "score": 0.077,
    "n_articles": 1,
    "articles": [
     {
@@ -2045,7 +1838,7 @@
    "to_club": "Juventus",
    "from_club": "Manchester United",
    "stage": 1,
-   "score": 0.078,
+   "score": 0.077,
    "n_articles": 1,
    "articles": [
     {
@@ -2062,7 +1855,7 @@
    "to_club": "Juventus",
    "from_club": "Newcastle United",
    "stage": 1,
-   "score": 0.078,
+   "score": 0.077,
    "n_articles": 1,
    "articles": [
     {
@@ -2079,7 +1872,7 @@
    "to_club": "Arsenal",
    "from_club": "Manchester United",
    "stage": 1,
-   "score": 0.078,
+   "score": 0.077,
    "n_articles": 1,
    "articles": [
     {
@@ -2096,7 +1889,7 @@
    "to_club": "Real Madrid",
    "from_club": "Manchester City",
    "stage": 1,
-   "score": 0.077,
+   "score": 0.076,
    "n_articles": 1,
    "articles": [
     {
@@ -2113,7 +1906,7 @@
    "to_club": "Manchester United",
    "from_club": "Napoli",
    "stage": 1,
-   "score": 0.077,
+   "score": 0.076,
    "n_articles": 1,
    "articles": [
     {
@@ -2130,7 +1923,7 @@
    "to_club": "Real Madrid",
    "from_club": "Napoli",
    "stage": 1,
-   "score": 0.077,
+   "score": 0.076,
    "n_articles": 1,
    "articles": [
     {
@@ -2147,7 +1940,7 @@
    "to_club": "Manchester United",
    "from_club": "SL Benfica",
    "stage": 1,
-   "score": 0.077,
+   "score": 0.076,
    "n_articles": 1,
    "articles": [
     {
@@ -2164,7 +1957,7 @@
    "to_club": "Chelsea",
    "from_club": "SL Benfica",
    "stage": 1,
-   "score": 0.077,
+   "score": 0.076,
    "n_articles": 1,
    "articles": [
     {
@@ -2181,7 +1974,7 @@
    "to_club": "Real Madrid",
    "from_club": "Liverpool",
    "stage": 1,
-   "score": 0.076,
+   "score": 0.075,
    "n_articles": 1,
    "articles": [
     {
@@ -2198,7 +1991,7 @@
    "to_club": "Leeds United",
    "from_club": "Manchester City",
    "stage": 1,
-   "score": 0.075,
+   "score": 0.074,
    "n_articles": 1,
    "articles": [
     {
@@ -2215,7 +2008,7 @@
    "to_club": "Manchester United",
    "from_club": "Al Nassr",
    "stage": 1,
-   "score": 0.075,
+   "score": 0.074,
    "n_articles": 1,
    "articles": [
     {
@@ -2227,29 +2020,12 @@
    ]
   },
   {
-   "player_id": 244260,
-   "player": "Dani Olmo",
-   "to_club": "Tottenham Hotspur",
-   "from_club": "FC Barcelona",
-   "stage": 1,
-   "score": 0.073,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Tottenham contacted over Dani Olmo transfer ahead of January window",
-     "url": "https://www.caughtoffside.com/2026/09/27/tottenham-dani-olmo-transfer-january/",
-     "source": "caughtoffside.com",
-     "date": "2026-09-27"
-    }
-   ]
-  },
-  {
    "player_id": 275029,
    "player": "I. Maza",
    "to_club": "Tottenham Hotspur",
    "from_club": "Bayer 04 Leverkusen",
    "stage": 1,
-   "score": 0.073,
+   "score": 0.072,
    "n_articles": 1,
    "articles": [
     {
@@ -2329,35 +2105,18 @@
    ]
   },
   {
-   "player_id": 247090,
-   "player": "E. Fernández",
-   "to_club": "Manchester City",
-   "from_club": "Chelsea",
+   "player_id": 236015,
+   "player": "M. Gibbs-White",
+   "to_club": "FC Bayern München",
+   "from_club": "Nottingham Forest",
    "stage": 1,
    "score": 0.069,
    "n_articles": 1,
    "articles": [
     {
-     "title": "Enzo Fernandez transfer statement made as Man City warning issued to Premier League rivals",
-     "url": "https://www.aol.co.uk/articles/enzo-fernandez-transfer-statement-made-213909000.html",
-     "source": "aol.co.uk",
-     "date": "2026-09-23"
-    }
-   ]
-  },
-  {
-   "player_id": 71305,
-   "player": "J. Seys",
-   "to_club": "Manchester United",
-   "from_club": "Club Brugge KV",
-   "stage": 1,
-   "score": 0.069,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Man Utd make Joaquin Seys decision with INEOS committed to new left - back signing",
-     "url": "https://www.teamtalk.com/manchester-united/man-utd-news-joaquin-seys-left-back-target-decision-committed-signing-sources",
-     "source": "teamtalk.com",
+     "title": "Bayern Munich leading race for Morgan Gibbs - White , with Chelsea still in the picture Chelsea Fc Transfer News",
+     "url": "https://www.el-balad.com/17053257",
+     "source": "el-balad.com",
      "date": "2026-09-24"
     }
    ]
@@ -2380,19 +2139,36 @@
    ]
   },
   {
-   "player_id": 236015,
-   "player": "M. Gibbs-White",
-   "to_club": "FC Bayern München",
-   "from_club": "Nottingham Forest",
+   "player_id": 71305,
+   "player": "J. Seys",
+   "to_club": "Manchester United",
+   "from_club": "Club Brugge KV",
    "stage": 1,
    "score": 0.069,
    "n_articles": 1,
    "articles": [
     {
-     "title": "Bayern Munich leading race for Morgan Gibbs - White , with Chelsea still in the picture Chelsea Fc Transfer News",
-     "url": "https://www.el-balad.com/17053257",
-     "source": "el-balad.com",
+     "title": "Man Utd make Joaquin Seys decision with INEOS committed to new left - back signing",
+     "url": "https://www.teamtalk.com/manchester-united/man-utd-news-joaquin-seys-left-back-target-decision-committed-signing-sources",
+     "source": "teamtalk.com",
      "date": "2026-09-24"
+    }
+   ]
+  },
+  {
+   "player_id": 247090,
+   "player": "E. Fernández",
+   "to_club": "Manchester City",
+   "from_club": "Chelsea",
+   "stage": 1,
+   "score": 0.068,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Enzo Fernandez transfer statement made as Man City warning issued to Premier League rivals",
+     "url": "https://www.aol.co.uk/articles/enzo-fernandez-transfer-statement-made-213909000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-23"
     }
    ]
   },
@@ -2419,7 +2195,7 @@
    "to_club": "Atlético Madrid",
    "from_club": "Bayer 04 Leverkusen",
    "stage": 1,
-   "score": 0.068,
+   "score": 0.067,
    "n_articles": 1,
    "articles": [
     {
@@ -2436,7 +2212,7 @@
    "to_club": "Manchester City",
    "from_club": "Bayer 04 Leverkusen",
    "stage": 1,
-   "score": 0.068,
+   "score": 0.067,
    "n_articles": 1,
    "articles": [
     {
@@ -2453,7 +2229,7 @@
    "to_club": "Manchester United",
    "from_club": "Bayer 04 Leverkusen",
    "stage": 1,
-   "score": 0.068,
+   "score": 0.067,
    "n_articles": 1,
    "articles": [
     {
@@ -2470,7 +2246,7 @@
    "to_club": "Tottenham Hotspur",
    "from_club": "FC Bayern München",
    "stage": 1,
-   "score": 0.067,
+   "score": 0.066,
    "n_articles": 1,
    "articles": [
     {
@@ -2487,7 +2263,7 @@
    "to_club": "Aston Villa",
    "from_club": "FC Bayern München",
    "stage": 1,
-   "score": 0.067,
+   "score": 0.066,
    "n_articles": 1,
    "articles": [
     {
@@ -2504,7 +2280,7 @@
    "to_club": "Manchester United",
    "from_club": "Borussia Dortmund",
    "stage": 1,
-   "score": 0.067,
+   "score": 0.066,
    "n_articles": 1,
    "articles": [
     {
@@ -2521,7 +2297,7 @@
    "to_club": "AC Milan",
    "from_club": "Arsenal",
    "stage": 1,
-   "score": 0.067,
+   "score": 0.066,
    "n_articles": 1,
    "articles": [
     {
@@ -2529,23 +2305,6 @@
      "url": "https://thehardtackle.com/transfer-news/2026/09/21/ac-milan-juventus-considering-2027-move-for-viktor-gyokeres/",
      "source": "thehardtackle.com",
      "date": "2026-09-21"
-    }
-   ]
-  },
-  {
-   "player_id": 240243,
-   "player": "Matheus Cunha",
-   "to_club": "Fulham FC",
-   "from_club": "Manchester United",
-   "stage": 1,
-   "score": 0.066,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "  Didnt look that way to me : Carrick sharply disagrees with Matheus Cunha Fulham claim - Man United News And Transfer News",
-     "url": "https://thepeoplesperson.com/2026/09/20/didnt-look-that-way-to-me-carrick-sharply-disagrees-with-matheus-cunhas-fulham-claim-316779/",
-     "source": "thepeoplesperson.com",
-     "date": "2026-09-20"
     }
    ]
   },
@@ -2572,7 +2331,7 @@
    "to_club": "Arsenal",
    "from_club": "Borussia Dortmund",
    "stage": 1,
-   "score": 0.066,
+   "score": 0.065,
    "n_articles": 1,
    "articles": [
     {
@@ -2589,7 +2348,7 @@
    "to_club": "Borussia Dortmund",
    "from_club": "Arsenal",
    "stage": 1,
-   "score": 0.059,
+   "score": 0.058,
    "n_articles": 1,
    "articles": [
     {
@@ -2606,7 +2365,7 @@
    "to_club": "Manchester United",
    "from_club": "Chelsea",
    "stage": 1,
-   "score": 0.059,
+   "score": 0.058,
    "n_articles": 1,
    "articles": [
     {
@@ -2623,7 +2382,7 @@
    "to_club": "Manchester City",
    "from_club": "PSV",
    "stage": 1,
-   "score": 0.058,
+   "score": 0.057,
    "n_articles": 1,
    "articles": [
     {
@@ -2640,7 +2399,7 @@
    "to_club": "Panathinaikos FC",
    "from_club": "PSV",
    "stage": 1,
-   "score": 0.058,
+   "score": 0.057,
    "n_articles": 1,
    "articles": [
     {
@@ -2686,23 +2445,6 @@
    ]
   },
   {
-   "player_id": 202371,
-   "player": "T. Meunier",
-   "to_club": "Manchester United",
-   "from_club": "Lille OSC",
-   "stage": 1,
-   "score": 0.056,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Thomas Meunier admits Manchester United transfer desire",
-     "url": "https://www.caughtoffside.com/2026/09/10/premier-league-summer-signing-admits-he-would-have-joined-manchester-united/",
-     "source": "caughtoffside.com",
-     "date": "2026-09-10"
-    }
-   ]
-  },
-  {
    "player_id": 247851,
    "player": "Bruno Guimarães",
    "to_club": "Arsenal",
@@ -2722,10 +2464,61 @@
   {
    "player_id": 246191,
    "player": "J. Alvarez",
-   "to_club": "Liverpool",
+   "to_club": "FC Barcelona",
    "from_club": "Atlético Madrid",
    "stage": 1,
    "score": 0.056,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Barcelona admission could give Arsenal Julian Alvarez transfer edge",
+     "url": "https://www.aol.co.uk/articles/barcelona-admission-could-arsenal-julian-133405000.html",
+     "source": "aol.co.uk",
+     "date": "2026-09-10"
+    }
+   ]
+  },
+  {
+   "player_id": 202371,
+   "player": "T. Meunier",
+   "to_club": "Manchester United",
+   "from_club": "Lille OSC",
+   "stage": 1,
+   "score": 0.056,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Thomas Meunier admits Manchester United transfer desire",
+     "url": "https://www.caughtoffside.com/2026/09/10/premier-league-summer-signing-admits-he-would-have-joined-manchester-united/",
+     "source": "caughtoffside.com",
+     "date": "2026-09-10"
+    }
+   ]
+  },
+  {
+   "player_id": 239837,
+   "player": "A. Mac Allister",
+   "to_club": "Atlético Madrid",
+   "from_club": "Liverpool",
+   "stage": 1,
+   "score": 0.055,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Atletico Madrid eyeing 2027 move for Alexis Mac Allister",
+     "url": "https://thehardtackle.com/transfer-news/2026/09/09/atletico-madrid-eyeing-2027-move-for-alexis-mac-allister/",
+     "source": "thehardtackle.com",
+     "date": "2026-09-09"
+    }
+   ]
+  },
+  {
+   "player_id": 246191,
+   "player": "J. Alvarez",
+   "to_club": "Liverpool",
+   "from_club": "Atlético Madrid",
+   "stage": 1,
+   "score": 0.055,
    "n_articles": 1,
    "articles": [
     {
@@ -2742,7 +2535,7 @@
    "to_club": "Chelsea",
    "from_club": "Manchester City",
    "stage": 1,
-   "score": 0.055,
+   "score": 0.054,
    "n_articles": 1,
    "articles": [
     {
@@ -2759,7 +2552,7 @@
    "to_club": "Manchester City",
    "from_club": "Atlético Madrid",
    "stage": 1,
-   "score": 0.054,
+   "score": 0.053,
    "n_articles": 1,
    "articles": [
     {
@@ -2873,40 +2666,6 @@
    ]
   },
   {
-   "player_id": 233049,
-   "player": "J. Sancho",
-   "to_club": "Manchester United",
-   "from_club": "Aston Villa",
-   "stage": 1,
-   "score": 0.052,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Jadon Sancho encouraged to complete dramatic move to unlikely club - Man United News And Transfer News",
-     "url": "https://thepeoplesperson.com/2026/09/04/jadon-sancho-encouraged-to-complete-dramatic-move-to-unlikely-club-315045/",
-     "source": "thepeoplesperson.com",
-     "date": "2026-09-04"
-    }
-   ]
-  },
-  {
-   "player_id": 261299,
-   "player": "A. Scott",
-   "to_club": "Newcastle United",
-   "from_club": "AFC Bournemouth",
-   "stage": 1,
-   "score": 0.052,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Chelsea transfer target Alex Scott shines vs Newcastle",
-     "url": "https://www.caughtoffside.com/2026/09/05/chelsea-transfer-target-alex-scott-shines-vs-newcastle/",
-     "source": "caughtoffside.com",
-     "date": "2026-09-05"
-    }
-   ]
-  },
-  {
    "player_id": 275298,
    "player": "A. Pavlović",
    "to_club": "Manchester City",
@@ -2920,23 +2679,6 @@
      "url": "https://www.caughtoffside.com/2026/09/04/man-city-discussed-aleksandar-pavlovic-transfer/",
      "source": "caughtoffside.com",
      "date": "2026-09-04"
-    }
-   ]
-  },
-  {
-   "player_id": 181291,
-   "player": "G. Wijnaldum",
-   "to_club": "Chelsea",
-   "from_club": "Al Ettifaq",
-   "stage": 1,
-   "score": 0.051,
-   "n_articles": 1,
-   "articles": [
-    {
-     "title": "Chelsea keen on move for free agent Georginio Wijnaldum",
-     "url": "https://www.caughtoffside.com/2026/09/03/sources-chelsea-want-champions-league-winner-midfield-void/",
-     "source": "caughtoffside.com",
-     "date": "2026-09-03"
     }
    ]
   },
@@ -2958,12 +2700,29 @@
    ]
   },
   {
+   "player_id": 181291,
+   "player": "G. Wijnaldum",
+   "to_club": "Chelsea",
+   "from_club": "Al Ettifaq",
+   "stage": 1,
+   "score": 0.05,
+   "n_articles": 1,
+   "articles": [
+    {
+     "title": "Chelsea keen on move for free agent Georginio Wijnaldum",
+     "url": "https://www.caughtoffside.com/2026/09/03/sources-chelsea-want-champions-league-winner-midfield-void/",
+     "source": "caughtoffside.com",
+     "date": "2026-09-03"
+    }
+   ]
+  },
+  {
    "player_id": 211300,
    "player": "A. Martial",
    "to_club": "Roma",
    "from_club": "AEK Athens",
    "stage": 1,
-   "score": 0.051,
+   "score": 0.05,
    "n_articles": 1,
    "articles": [
     {
@@ -2980,7 +2739,7 @@
    "to_club": "Roma",
    "from_club": "Chelsea",
    "stage": 1,
-   "score": 0.051,
+   "score": 0.05,
    "n_articles": 1,
    "articles": [
     {
@@ -2997,7 +2756,7 @@
    "to_club": "Newcastle United",
    "from_club": "Manchester City",
    "stage": 1,
-   "score": 0.05,
+   "score": 0.049,
    "n_articles": 1,
    "articles": [
     {
@@ -3008,5 +2767,7 @@
     }
    ]
   }
- ]
+ ],
+ "clubs_searched": 13,
+ "clubs_total": 80
 }

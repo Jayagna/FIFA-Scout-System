@@ -72,6 +72,17 @@ def test_precision_rules():
     assert _links("Man United latest stance on JJ Gabriel as transfer suitors circle") == []
     assert _links("Barcelona eye Arsenal\u2019s Gabriel") == [("Gabriel", "FC Barcelona", 1)]
     assert _links("Barcelona Eye Arsenal Defender Gabriel In Shock Move") == [("Gabriel", "FC Barcelona", 1)]
+    # managers and other people who share a one-word name
+    assert _links("Erik ten Hag reveals why Man Utd wanted to sign Gabriel") == [("Gabriel", "Manchester United", 1)]
+    assert _links("Chelsea sacking talk grows as Gabriel De Zerbi drops transfer warning") == []
+    # opponents, former clubs, the replaced player, the player's current club, site names
+    assert _links("Real Madrid media react to Bellingham display v Arsenal as transfer decision nears") == []
+    assert _links("Chelsea eye former Liverpool loanee Bukayo Saka in transfer swoop") == [("B. Saka", "Chelsea", 2)]
+    assert _links("Man Utd keeping close watch on Liverpool defender to replace Lewis Hall") == []
+    assert _links("Spurs keeping tabs on Chelsea midfielder Conor Gallagher") == [("C. Gallagher", "Tottenham Hotspur", 1)]
+    assert _links("Lewis Hall stars as Chelsea win - Man United News And Transfer News") == []
+    assert _links("Man United make contact for Lewis Hall - Man United News And Transfer News") == [
+        ("L. Hall", "Manchester United", 2)]
 
 
 def test_scores_reward_reliable_recent_and_repeated_reports():
@@ -212,11 +223,40 @@ def test_gdelt_time_budget_returns_what_it_has():
     assert len(arts) == 3                                            # searches at t=0, 100, 200
 
 
-def test_guardian_needs_a_key(monkeypatch, capsys):
+def test_guardian_needs_a_key(monkeypatch, capsys, tmp_path):
     import fetch_rumours
+    monkeypatch.setattr(fetch_rumours, "SEEN", tmp_path / "headlines.json")
+    monkeypatch.setattr(fetch_rumours, "OUT", tmp_path / "rumours.json")
     monkeypatch.delenv("GUARDIAN_API_KEY", raising=False)
     monkeypatch.setattr(fetch_rumours, "fetch_gdelt", lambda *a, **k: [])
     monkeypatch.setattr(fetch_rumours, "fetch_guardian", lambda *a, **k: (_ for _ in ()).throw(AssertionError))
     monkeypatch.setattr(fetch_rumours, "latest_players", _db)
     assert fetch_rumours.main(["--clubs", "2"]) == 1                 # nothing fetched: old file kept
     assert "Guardian: skipped" in capsys.readouterr().out
+
+
+def test_next_run_continues_with_the_clubs_not_yet_searched(monkeypatch, tmp_path):
+    import fetch_rumours
+    from fetch_rumours import gdelt_terms
+    seen, out = tmp_path / "headlines.json", tmp_path / "rumours.json"
+    monkeypatch.setattr(fetch_rumours, "SEEN", seen)
+    monkeypatch.setattr(fetch_rumours, "OUT", out)
+    monkeypatch.delenv("GUARDIAN_API_KEY", raising=False)
+    monkeypatch.setattr(fetch_rumours, "latest_players", _db)
+    asked = []
+
+    def fake_fetch(clubs, start, end, budget_s=None, done=None):
+        asked.append(list(clubs))
+        done.append(clubs[0])                                      # only reaches one club per run
+        return [{"title": f"{clubs[0]} make move for Lewis Hall", "url": f"https://x/{clubs[0]}",
+                 "domain": "bbc.co.uk", "source": "BBC", "date": "2026-11-01"}]
+    monkeypatch.setattr(fetch_rumours, "fetch_gdelt", fake_fetch)
+    assert fetch_rumours.main(["--clubs", "3"]) == 0
+    assert fetch_rumours.main(["--clubs", "3"]) == 0
+    assert len(asked[1]) == len(asked[0]) - 1 and asked[0][0] not in asked[1]
+    saved = json.loads(seen.read_text())
+    assert len(saved["clubs_done"]) == 2 and len(saved["articles"]) == 2
+    assert json.loads(out.read_text())["clubs_searched"] == 2
+    assert fetch_rumours.main(["--clubs", "3", "--fresh"]) == 0 and len(asked[2]) == 3
+    assert gdelt_terms("Paris Saint-Germain") == ["Paris Saint-Germain", "Paris SG"]
+    assert gdelt_terms("1. FC Union Berlin") == ["Union Berlin"]
