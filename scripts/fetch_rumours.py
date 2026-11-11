@@ -40,11 +40,11 @@ GDELT = "https://api.gdeltproject.org/api/v2/doc/doc"
 GUARDIAN = "https://content.guardianapis.com/search"
 
 
-def http_get(url: str, tries: int = 3) -> bytes:
+def http_get(url: str, tries: int = 2) -> bytes:
     for attempt in range(1, tries + 1):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=60) as r:
+            with urllib.request.urlopen(req, timeout=30) as r:
                 return r.read()
         except (urllib.error.URLError, TimeoutError) as e:
             if attempt == tries:
@@ -81,17 +81,22 @@ def parse_gdelt(payload: bytes) -> list[dict]:
 
 
 def fetch_gdelt(clubs: list[str], start: datetime, end: datetime, get=http_get, pause: float = 6.0) -> list[dict]:
-    out = []
+    out, failures = [], 0
     for i, club in enumerate(clubs):
+        if failures >= 3:
+            print("  GDELT failed three times in a row; skipping the remaining clubs")
+            break
         q = f'"{headline_name(club)}" (transfer OR bid OR target OR signing OR interest) sourcelang:english'
         url = GDELT + "?" + urllib.parse.urlencode({
             "query": q, "mode": "artlist", "format": "json", "maxrecords": 250, "sort": "datedesc",
             "startdatetime": start.strftime("%Y%m%d%H%M%S"), "enddatetime": end.strftime("%Y%m%d%H%M%S")})
         try:
             got = parse_gdelt(get(url))
+            failures = 0
         except Exception as e:  # noqa: BLE001 - one failed club must not stop the run
             print(f"  GDELT {club}: failed ({e})")
             got = []
+            failures += 1
         print(f"  GDELT {club}: {len(got)} headlines")
         out += got
         if pause and i < len(clubs) - 1:

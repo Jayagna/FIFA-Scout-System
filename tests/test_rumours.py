@@ -149,3 +149,15 @@ def test_squad_builder_favours_rumoured_player(tmp_path):
     ids = [b["id"] for b in linked["buys"]]
     assert target in ids and linked["buys"][ids.index(target)]["rumour"]["score"] == 0.99
     assert service.rumours(store, "Brentford")["players"][0]["id"] == target
+
+
+def test_gdelt_outage_stops_early():
+    from fetch_rumours import fetch_gdelt
+    calls = []
+
+    def down(url):
+        calls.append(url)
+        raise TimeoutError("down")
+    start = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    assert fetch_gdelt([f"Club {i}" for i in range(20)], start, NOW, get=down, pause=0) == []
+    assert len(calls) == 3
