@@ -13,6 +13,12 @@ B) Decision backtest: do forecasts make better signings?
    Forecast/baseline models are trained only on editions before t.
    Each plan is then scored with the *actual* ratings from edition t+1:
    the best XI the final squad can field next season.
+
+C) Whole squad vs starting XI only (newest edition, with sales allowed)
+   every Premier League club x budget {20, 50}M, 4-3-3, max 3 signings, up to 4 sales.
+   The same problem planned twice: XI only (bench_weight 0) and XI + 0.3 x second XI.
+   Both final squads are scored the same way: best XI, then the best second XI behind it.
+   Run on its own with --only-c (writes reports/optimizer_metrics_C.json).
 """
 from __future__ import annotations
 
@@ -70,6 +76,54 @@ def experiment_a(panel: pd.DataFrame) -> dict:
         "solve_seconds_median": float(df["solve_s"].median()),
         "solve_seconds_max": float(df["solve_s"].max()),
         "candidates_median": float(df["n_candidates"].median()),
+    }
+
+
+def lineups(squad: pd.DataFrame, formation: str) -> tuple[float, float, set, set]:
+    """Best XI, then the best second XI behind it: (XI avg, second XI avg, XI ids, second XI ids)."""
+    s = TransferSettings(formation=formation, budget=0, max_signings=0, bench_weight=1e-3,
+                         min_depth={}, squad_min=0, squad_max=99, wage_budget=1e12)
+    plan = optimize_squad(squad, squad.iloc[:0], s)
+    return plan.xi_rating, plan.bench_rating, set(plan.xi["id"]), set(plan.bench["id"])
+
+
+def experiment_c(panel: pd.DataFrame) -> dict:
+    d = panel[panel["edition"] == panel["edition"].max()].copy()
+    d["pos_group"] = d["pos_group"].astype(str)
+    clubs = sorted(d.loc[d["league"] == PREMIER_LEAGUE, "club"].dropna().unique())
+    rows = []
+    for club in clubs:
+        squad, market = d[d["club"] == club], d[d["club"] != club]
+        _, _, _, backups = lineups(squad, "4-3-3")
+        for budget in (20e6, 50e6):
+            for w in (0.0, 0.3):
+                s = TransferSettings(formation="4-3-3", budget=budget, max_signings=3, allow_sales=True,
+                                     max_sales=4, bench_weight=w)
+                plan = optimize_squad(squad, market, s)
+                final = pd.concat([squad[~squad["id"].isin(plan.sales["id"])],
+                                   market[market["id"].isin(plan.buys["id"])]])
+                xi, bench, _, _ = lineups(final, "4-3-3")
+                sold = set(plan.sales["id"])
+                rows.append(dict(club=club, budget=budget, w=w, status=plan.status, xi=xi, bench=bench,
+                                 n_sales=len(sold), backups_sold=len(sold & backups),
+                                 sold_age=float(plan.sales["age"].mean()) if len(sold) else np.nan,
+                                 solve_s=plan.solve_seconds))
+        print(f"  C {club} done")
+    df = pd.DataFrame(rows)
+    df.to_csv(ROOT / "reports/whole_squad_vs_xi.csv", index=False)
+    a, b = df[df["w"] == 0].reset_index(drop=True), df[df["w"] > 0].reset_index(drop=True)
+    return {
+        "scenarios": int(len(a)),
+        "all_optimal": bool((df["status"] == "optimal").all()),
+        "xi_only": {"xi_avg": float(a["xi"].mean()), "second_xi_avg": float(a["bench"].mean()),
+                    "sales": int(a["n_sales"].sum()),
+                    "sold_age_avg": float(a["sold_age"].mean())},
+        "whole_squad": {"xi_avg": float(b["xi"].mean()), "second_xi_avg": float(b["bench"].mean()),
+                        "sales": int(b["n_sales"].sum()),
+                        "sold_age_avg": float(b["sold_age"].mean())},
+        "xi_points_given_up_avg": float(((a["xi"] - b["xi"]) * 11).mean()),
+        "second_xi_points_gained_avg": float(((b["bench"] - a["bench"]) * 11).mean()),
+        "solve_seconds_median_whole_squad": float(b["solve_s"].median()),
     }
 
 
@@ -159,6 +213,11 @@ def experiment_b(panel: pd.DataFrame, h: int = 1, max_age: int | None = None,
 def main():
     t0 = time.time()
     panel = pd.read_pickle(ROOT / "data/processed/panel.pkl")
+    if "--only-c" in sys.argv:
+        res = {"C_whole_squad_vs_xi": dict(experiment_c(panel), edition=int(panel["edition"].max()))}
+        (ROOT / "reports/optimizer_metrics_C.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
+        print(json.dumps(res, indent=2))
+        return
     prev = ROOT / "reports/optimizer_metrics_A.json"
     if "--skip-a" in sys.argv and prev.exists():
         res = json.loads(prev.read_text(encoding="utf-8"))

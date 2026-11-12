@@ -99,7 +99,20 @@ upgrade per euro; the better of the two is used).
 * The MILP was never worse and strictly better in **68%** of scenarios.
 * It added **18.6** rating points to the XI on average vs **15.0** for the best greedy plan
   (**+24%** more improvement from the same money).
-* Median solver time **0.4 s** (max 2.2 s) over the full transfer market (~18k players).
+* Median solver time **0.25 s** (max 2.1 s) over the full transfer market (~18k players).
+
+**Whole squad vs. starting XI only** — every Premier League club × €20M / €50M, 4-3-3, up to
+3 signings and 4 sales (40 scenarios, all solved to optimality; `backtest_optimizer.py
+--only-c`). The same problem planned twice, both final squads scored the same way (best XI,
+then the best second XI behind it):
+
+| Planned for | XI avg | Second XI avg | Change vs. XI only |
+|---|---|---|---|
+| Starting XI only | 81.80 | 73.90 | — |
+| XI + 0.3 × second XI (default) | 81.59 | 75.79 | **+20.8** second-XI points for **−2.3** XI points |
+
+Giving up a little in the XI (it keeps or buys a backup instead of the last marginal upgrade)
+buys a much deeper squad. Median solve 1.1 s.
 
 **Why it used to suggest Messi.** The first version ranked signings by rating only. EA's
 values collapse with age, so an 86-rated 38-year-old (€26M) was the best rating per euro,
@@ -237,8 +250,9 @@ limit), so it is reduced with two rules that provably cannot remove the optimum:
    him at that slot, one of them is unsigned and can take his place (same role, same
    group, no more money).
 
-This leaves roughly 2–3k candidates with only their few useful slots each; a plan takes
-1–5 seconds. With earlier plans excluded, rule 2 needs *max signings + excluded plans*
+This leaves a few hundred to ~2.5k candidates (median 577 in the benchmark) with only
+their few useful slots each; a plan takes 0.25 s at the median for the XI alone and about
+1 s with the second XI. With earlier plans excluded, rule 2 needs *max signings + excluded plans*
 dominators to stay exact. The unit tests check the result against brute-force enumeration on random small
 instances: with and without sales, and with expected ratings, objective bonuses, kept and
 removed players, and excluded plans.

@@ -1,0 +1,22 @@
+{
+  "C_whole_squad_vs_xi": {
+    "scenarios": 40,
+    "all_optimal": true,
+    "xi_only": {
+      "xi_avg": 81.79545454545455,
+      "second_xi_avg": 73.89545454545456,
+      "sales": 153,
+      "sold_age_avg": 23.58125
+    },
+    "whole_squad": {
+      "xi_avg": 81.58863636363637,
+      "second_xi_avg": 75.78636363636363,
+      "sales": 148,
+      "sold_age_avg": 22.11875
+    },
+    "xi_points_given_up_avg": 2.274999999999998,
+    "second_xi_points_gained_avg": 20.800000000000004,
+    "solve_seconds_median_whole_squad": 1.0917065143585205,
+    "edition": 26
+  }
+}

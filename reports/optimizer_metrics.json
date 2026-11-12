@@ -8,9 +8,9 @@
     "mean_xi_points_added_greedy_best": 15.016666666666675,
     "extra_points_vs_greedy_mean": 3.583333333333328,
     "extra_gain_vs_greedy_pct": 0.23862375138734676,
-    "solve_seconds_median": 0.4069385528564453,
-    "solve_seconds_max": 2.1711745262145996,
-    "candidates_median": 996.5,
+    "solve_seconds_median": 0.24805963039398193,
+    "solve_seconds_max": 2.0805883407592773,
+    "candidates_median": 576.5,
     "edition": 26
   },
   "B_decision_backtest": {
